@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -36,7 +37,7 @@ namespace Wikiled.Twitter.Text
             {
                 text = text.Normalize(NormalizationForm.FormC);
             }
-            catch
+            catch (ArgumentException)
             {
             }
 

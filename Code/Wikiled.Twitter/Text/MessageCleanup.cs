@@ -32,7 +32,7 @@ namespace Wikiled.Twitter.Text
         public async Task<string> Cleanup(TweetData message)
         {
             Guard.NotNull(() => message, message);
-            return await Task.Run(() => CleanupInternal(message));
+            return await Task.Run(() => CleanupInternal(message)).ConfigureAwait(false);
         }
 
         private string CleanupInternal(TweetData message)

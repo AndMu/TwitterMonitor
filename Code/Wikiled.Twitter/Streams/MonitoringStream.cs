@@ -99,7 +99,7 @@ namespace Wikiled.Twitter.Streams
             {
                 try
                 {
-                    await stream.StartStreamMatchingAnyConditionAsync();
+                    await stream.StartStreamMatchingAnyConditionAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -109,7 +109,7 @@ namespace Wikiled.Twitter.Streams
                 if (IsActive)
                 {
                     log.Info("Waiting to retry");
-                    await Task.Delay(500);
+                    await Task.Delay(500).ConfigureAwait(false);
                 }
             }
             while (IsActive);
@@ -123,15 +123,10 @@ namespace Wikiled.Twitter.Streams
                 var json = jsonObjectEventArgs.Json;
                 var jsonConvert = TweetinviContainer.Resolve<IJsonObjectConverter>();
                 var tweetDto = jsonConvert.DeserializeObject<ITweetDTO>(json);
-                if (tweetDto.CreatedBy == null ||
-                    tweetDto.CreatedBy.FollowersCount < 50000 ||
-                    following.Contains(tweetDto.CreatedBy.Id))
+                Task.Run(() => persistency.Save(json));
+                if (tweetDto.CreatedBy != null)
                 {
-                    persistency.Save(json);
-                    if (tweetDto.CreatedBy != null)
-                    {
-                        log.Debug("Message received: [{0}-{3}] - [{1}-{2}]", tweetDto.CreatedBy.Location, tweetDto.CreatedBy.Name, tweetDto.CreatedBy.FollowersCount, tweetDto.Place);
-                    }
+                    log.Debug("Message received: [{0}-{3}] - [{1}-{2}]", tweetDto.CreatedBy.Location, tweetDto.CreatedBy.Name, tweetDto.CreatedBy.FollowersCount, tweetDto.Place);
                 }
             }
             catch (Exception ex)

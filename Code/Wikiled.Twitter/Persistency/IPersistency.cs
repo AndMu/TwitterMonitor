@@ -4,6 +4,6 @@ namespace Wikiled.Twitter.Persistency
 {
     public interface IPersistency
     {
-        Task Save(string json);
+        void Save(string json);
     }
 }

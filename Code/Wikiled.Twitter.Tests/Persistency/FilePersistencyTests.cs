@@ -22,10 +22,10 @@ namespace Wikiled.Twitter.Tests.Persistency
         }
 
         [Test]
-        public async Task SaveError()
+        public void SaveError()
         {
             stream.Setup(item => item.GetStream()).Throws<NullReferenceException>();
-            await instance.Save("Test");
+            instance.Save("Test");
         }
 
         [Test]

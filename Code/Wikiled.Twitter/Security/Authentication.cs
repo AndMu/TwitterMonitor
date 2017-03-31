@@ -7,7 +7,6 @@ namespace Wikiled.Twitter.Security
     {
         private Authentication()
         {
-
             IphoneTwitterCredentials = Auth.SetApplicationOnlyCredentials("IQKbtAYlXLripLGPWd0HUA", "GgDYlkSvaPxGxC4X8liwpUoqKwwr3lCADbz8A7ADU");
         }
 
