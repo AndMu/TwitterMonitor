@@ -1,5 +1,12 @@
-# Twitter monitor C# BOT
+# Twitter monitoring C# BOT
 
+Based on Twitter stream
+
+You can monitor:
+* By Keywords
+* By Users
+
+Other features
 * Persist data into compressed files
 * Can upload data into Redis database
 
