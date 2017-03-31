@@ -2,7 +2,7 @@
 
 Based on Twitter stream
 
-4.6.2 NET
+4.6.2 .NET
 
 You can monitor:
 * By Keywords
