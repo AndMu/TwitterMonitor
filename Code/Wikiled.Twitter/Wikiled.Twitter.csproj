@@ -188,6 +188,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Wikiled.Twitter.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Text\tld_lib.yml" />
