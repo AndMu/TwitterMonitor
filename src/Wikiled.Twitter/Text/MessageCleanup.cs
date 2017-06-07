@@ -37,11 +37,11 @@ namespace Wikiled.Twitter.Text
 
         private string CleanupInternal(TweetData message)
         {
-            var text = Replace(message.Text.ToLower(), extractor.ExtractUrlsWithIndices(message.Text), string.Empty);
+            var text = Replace(message.Text.ToLower(), extractor.ExtractUrlsWithIndices(message.Text), ":URL:");
             var names = extractor.ExtractMentionedScreennamesWithIndices(text)
                 .Where(item => !item.Value.Contains("trump"))
                 .ToArray();
-            text = Replace(text, names, "AT_USER");
+            //text = Replace(text, names, "AT_USER");
             StringBuilder builder = new StringBuilder();
             char? previous = null;
             char? previousToPrevious = null;
