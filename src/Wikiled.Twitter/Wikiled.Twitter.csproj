@@ -232,7 +232,10 @@
     <Compile Include="Persistency\Data\RawTweetData.cs" />
     <Compile Include="Persistency\FilePersistency.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Security\Authentication.cs" />
+    <Compile Include="Security\IAuthentication.cs" />
+    <Compile Include="Security\PersistedAuthentication.cs" />
+    <Compile Include="Security\PinAuthentication.cs" />
+    <Compile Include="Security\Credentials.cs" />
     <Compile Include="Streams\MonitoringStream.cs" />
   </ItemGroup>
   <ItemGroup>

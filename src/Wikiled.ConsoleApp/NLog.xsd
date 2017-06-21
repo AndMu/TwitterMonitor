@@ -1376,7 +1376,7 @@
           <xs:element name="priority" minOccurs="0" maxOccurs="1" type="Layout" />
           <xs:element name="timeout" minOccurs="0" maxOccurs="1" type="xs:integer" />
           <xs:element name="smtpServer" minOccurs="0" maxOccurs="1" type="Layout" />
-          <xs:element name="smtpAuthentication" minOccurs="0" maxOccurs="1" type="NLog.Targets.SmtpAuthenticationMode" />
+          <xs:element name="smtpCredentials" minOccurs="0" maxOccurs="1" type="NLog.Targets.SmtpCredentialsMode" />
           <xs:element name="smtpUserName" minOccurs="0" maxOccurs="1" type="Layout" />
           <xs:element name="smtpPassword" minOccurs="0" maxOccurs="1" type="Layout" />
           <xs:element name="enableSsl" minOccurs="0" maxOccurs="1" type="xs:boolean" />
@@ -1468,19 +1468,19 @@
             <xs:documentation>SMTP Server to be used for sending.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="smtpAuthentication" type="NLog.Targets.SmtpAuthenticationMode">
+        <xs:attribute name="smtpCredentials" type="NLog.Targets.SmtpCredentialsMode">
           <xs:annotation>
-            <xs:documentation>SMTP Authentication mode.</xs:documentation>
+            <xs:documentation>SMTP Credentials mode.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="smtpUserName" type="SimpleLayoutAttribute">
           <xs:annotation>
-            <xs:documentation>Username used to connect to SMTP server (used when SmtpAuthentication is set to "basic").</xs:documentation>
+            <xs:documentation>Username used to connect to SMTP server (used when SmtpCredentials is set to "basic").</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="smtpPassword" type="SimpleLayoutAttribute">
           <xs:annotation>
-            <xs:documentation>Password used to authenticate against SMTP server (used when SmtpAuthentication is set to "basic").</xs:documentation>
+            <xs:documentation>Password used to authenticate against SMTP server (used when SmtpCredentials is set to "basic").</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="enableSsl" type="xs:boolean">
@@ -1501,7 +1501,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="NLog.Targets.SmtpAuthenticationMode">
+  <xs:simpleType name="NLog.Targets.SmtpCredentialsMode">
     <xs:restriction base="xs:string">
       <xs:enumeration value="None" />
       <xs:enumeration value="Basic" />

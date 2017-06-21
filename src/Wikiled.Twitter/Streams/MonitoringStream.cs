@@ -26,22 +26,18 @@ namespace Wikiled.Twitter.Streams
 
         private int isActive;
 
-        private readonly string pinCode;
-
         private long totalReceived;
 
-        private readonly IAuthenticationContext context;
+        private readonly IAuthentication auth;
 
         private readonly HashSet<long> following = new HashSet<long>();
 
-        public MonitoringStream(IPersistency persistency, IAuthenticationContext context, string pinCode)
+        public MonitoringStream(IPersistency persistency, IAuthentication auth)
         {
             Guard.NotNull(() => persistency, persistency);
-            Guard.NotNull(() => context, context);
-            Guard.NotNullOrEmpty(() => pinCode, pinCode);
+            Guard.NotNull(() => auth, auth);
             this.persistency = persistency;
-            this.pinCode = pinCode;
-            this.context = context;
+            this.auth = auth;
         }
 
         public bool IsActive
@@ -64,14 +60,11 @@ namespace Wikiled.Twitter.Streams
             log.Debug("Starting...");
             IsActive = true;
 
-            Auth.InitializeApplicationOnlyCredentials(Authentication.Instance.IphoneTwitterCredentials);
+            Auth.InitializeApplicationOnlyCredentials(Credentials.Instance.IphoneTwitterCredentials);
             ExceptionHandler.SwallowWebExceptions = false;
             ExceptionHandler.WebExceptionReceived += ExceptionHandlerOnWebExceptionReceived;
 
-            // With this pin code it is now possible to get the credentials back from Twitter
-            var userCredentials = AuthFlow.CreateCredentialsFromVerifierCode(pinCode, context);
-
-            stream = Stream.CreateFilteredStream(userCredentials);
+            stream = Stream.CreateFilteredStream(auth.Authenticate());
             stream.JsonObjectReceived += StreamOnJsonObjectReceived;
             foreach (var keyword in keywords)
             {
@@ -123,7 +116,7 @@ namespace Wikiled.Twitter.Streams
                 var json = jsonObjectEventArgs.Json;
                 var jsonConvert = TweetinviContainer.Resolve<IJsonObjectConverter>();
                 var tweetDto = jsonConvert.DeserializeObject<ITweetDTO>(json);
-                Task.Run(() => persistency.Save(json));
+                Task.Run(() => persistency.Save(tweetDto));
                 if (tweetDto.CreatedBy != null)
                 {
                     log.Debug("Message received: [{0}-{3}] - [{1}-{2}]", tweetDto.CreatedBy.Location, tweetDto.CreatedBy.Name, tweetDto.CreatedBy.FollowersCount, tweetDto.Place);

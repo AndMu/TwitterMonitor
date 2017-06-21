@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using NLog;
-using Tweetinvi;
 using Wikiled.Core.Utility.Arguments;
 using Wikiled.Twitter.Persistency;
 using Wikiled.Twitter.Security;
@@ -36,23 +34,8 @@ namespace Wikiled.ConsoleApp.Twitter
                 throw new NotSupportedException("Invalid selection");
             }
 
-            // Go to the URL so that Twitter authenticates the user and gives him a PIN code
-            var authenticationContext = AuthFlow.InitAuthentication(Authentication.Instance.IphoneTwitterCredentials);
-
-            // This line is an example, on how to make the user go on the URL
-            Process.Start(authenticationContext.AuthorizationURL);
-            log.Info("Enter your Pin:");
-
-            // Ask the user to enter the pin code given by Twitter
-            var pinCode = Console.ReadLine();
-            if (string.IsNullOrEmpty(pinCode))
-            {
-                log.Error("No pin code entered");
-                return;
-            }
-            
             using (var streamSource = new TimingStreamSource(path, TimeSpan.FromHours(1)))
-            using (monitoringStream = new MonitoringStream(new FilePersistency(streamSource), authenticationContext, pinCode))
+            using (monitoringStream = new MonitoringStream(new FilePersistency(streamSource), new PersistedAuthentication(new PinAuthentication())))
             {
                 monitoringStream.Start(keywords, follow);
                 Console.WriteLine("To stop press enter...");

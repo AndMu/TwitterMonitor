@@ -27,6 +27,10 @@ namespace Wikiled.ConsoleApp
                 {
                     command = new TwitterMonitorCommand();
                 }
+                else if (string.Compare(args[0], "semeval", StringComparison.InvariantCultureIgnoreCase) == 0)
+                {
+                    command = new SemEvalRetrievelCommand();
+                }
                 else if (string.Compare(args[0], "load", StringComparison.InvariantCultureIgnoreCase) == 0)
                 {
                     command = new TwitterLoad();

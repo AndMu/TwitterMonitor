@@ -78,7 +78,7 @@ namespace Wikiled.ConsoleApp.Twitter
                 }
 
                 var tweet = Tweet.GenerateTweetFromDTO(tweetDto.Data);
-                await persistency.Save(tweet);
+                await persistency.Save(tweet).ConfigureAwait(false);
                 processor.Add(tweetDto);
             }
             catch (Exception ex)
@@ -125,7 +125,7 @@ namespace Wikiled.ConsoleApp.Twitter
             }
 
             inputBlock.Complete();
-            await Task.WhenAll(inputBlock.Completion, outputBlock.Completion);
+            await Task.WhenAll(inputBlock.Completion, outputBlock.Completion).ConfigureAwait(false);
         }
     }
 }
