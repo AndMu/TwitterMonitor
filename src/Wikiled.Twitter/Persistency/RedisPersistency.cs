@@ -10,8 +10,8 @@ using Wikiled.Redis.Indexing;
 using Wikiled.Redis.Keys;
 using Wikiled.Redis.Logic;
 using Wikiled.Redis.Persistency;
+using Wikiled.Text.Analysis.Twitter;
 using Wikiled.Twitter.Persistency.Data;
-using Wikiled.Twitter.Text;
 
 namespace Wikiled.Twitter.Persistency
 {

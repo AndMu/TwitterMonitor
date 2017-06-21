@@ -19,6 +19,7 @@ namespace Wikiled.ConsoleApp
                 log.Warn("Please specify arguments");
                 return;
             }
+
             try
             {
                 Command command;

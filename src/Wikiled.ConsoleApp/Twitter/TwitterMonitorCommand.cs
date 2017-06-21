@@ -50,7 +50,7 @@ namespace Wikiled.ConsoleApp.Twitter
                 log.Error("No pin code entered");
                 return;
             }
-
+            
             using (var streamSource = new TimingStreamSource(path, TimeSpan.FromHours(1)))
             using (monitoringStream = new MonitoringStream(new FilePersistency(streamSource), authenticationContext, pinCode))
             {

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using NLog;
 using ProtoBuf;
+using Tweetinvi;
+using Tweetinvi.Models.DTO;
 using Wikiled.Core.Utility.Arguments;
 using Wikiled.Core.Utility.IO;
 using Wikiled.Twitter.Persistency.Data;
@@ -24,13 +26,13 @@ namespace Wikiled.Twitter.Persistency
             this.streamSource = streamSource;
         }
 
-        public void Save(string json)
+        public void Save(ITweetDTO tweet)
         {
-            Guard.NotNullOrEmpty(() => json, json);
+            Guard.NotNull(() => tweet, tweet);
             try
             {
                 var data = new RawTweetData();
-                data.Data = Encoding.UTF8.GetBytes(json).Zip();
+                data.Data = Encoding.UTF8.GetBytes(tweet.ToJson()).Zip();
                 lock (syncRoot)
                 {
                     var stream = streamSource.GetStream();
