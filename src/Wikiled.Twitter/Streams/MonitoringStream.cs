@@ -42,14 +42,8 @@ namespace Wikiled.Twitter.Streams
 
         public bool IsActive
         {
-            get
-            {
-                return Interlocked.CompareExchange(ref isActive, 0, 0) == 1;
-            }
-            private set
-            {
-                Interlocked.Exchange(ref isActive, value ? 1 : 0);
-            }
+            get => Interlocked.CompareExchange(ref isActive, 0, 0) == 1;
+            private set => Interlocked.Exchange(ref isActive, value ? 1 : 0);
         }
 
         public long TotalReceived => Interlocked.Read(ref totalReceived);

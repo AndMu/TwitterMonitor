@@ -100,7 +100,7 @@ namespace Wikiled.ConsoleApp.Twitter
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 });
             var outputBlock = new ActionBlock<ProcessingChunk<TweetDTO>>(
-                async tweet => await Deserialized(tweet).ConfigureAwait(false),
+                Deserialized,
                 new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = Environment.ProcessorCount });
 
             inputBlock.LinkTo(deserializeBlock, new DataflowLinkOptions { PropagateCompletion = true });

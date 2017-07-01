@@ -7,8 +7,8 @@ using ProtoBuf;
 using Tweetinvi;
 using Tweetinvi.Models.DTO;
 using Wikiled.Core.Utility.Arguments;
-using Wikiled.Core.Utility.IO;
 using Wikiled.Twitter.Persistency.Data;
+using Wikiled.Core.Utility.Helpers;
 
 namespace Wikiled.Twitter.Persistency
 {

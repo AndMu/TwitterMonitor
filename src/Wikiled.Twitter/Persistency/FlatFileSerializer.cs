@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ProtoBuf;
+﻿using System.Text;
 using Tweetinvi.Models.DTO;
 using Wikiled.Core.Utility.Arguments;
-using Wikiled.Core.Utility.IO;
-using Wikiled.Twitter.Persistency.Data;
 
 namespace Wikiled.Twitter.Persistency
 {

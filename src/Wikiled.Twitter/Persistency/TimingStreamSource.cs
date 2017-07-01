@@ -31,16 +31,10 @@ namespace Wikiled.Twitter.Persistency
             path.EnsureDirectoryExistence();
         }
 
-          private bool IsDisposed
+        private bool IsDisposed
         {
-            get
-            {
-                return Interlocked.CompareExchange(ref isDisposed, 0, 0) == 1;
-            }
-            set
-            {
-                Interlocked.Exchange(ref isDisposed, value ? 1 : 0);
-            }
+            get => Interlocked.CompareExchange(ref isDisposed, 0, 0) == 1;
+            set => Interlocked.Exchange(ref isDisposed, value ? 1 : 0);
         }
 
         public Stream GetStream()
