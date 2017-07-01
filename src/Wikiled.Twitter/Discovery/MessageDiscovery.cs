@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Parameters;
@@ -55,7 +56,12 @@ namespace Wikiled.Twitter.Discovery
                 {
                     total = 0;
                     var searchParameter = GetParameter(topic, enrichmentItem, lastSearch);
-                    var tweets = Search.SearchTweets(searchParameter);
+                    var tweets = Search.SearchTweets(searchParameter) ?? Search.SearchTweets(searchParameter);
+
+                    if (tweets == null)
+                    {
+                        yield break;
+                    }
 
                     foreach (var tweet in tweets)
                     {
