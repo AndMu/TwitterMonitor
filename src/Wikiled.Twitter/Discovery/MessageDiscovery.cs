@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Parameters;
@@ -36,7 +35,7 @@ namespace Wikiled.Twitter.Discovery
             }
         }
 
-        public IEnumerable<ITweet> Process()
+        public IEnumerable<(ITweet Message, string Topic)> Process()
         {
             if (enrichment.Length > 0)
             {
@@ -46,7 +45,7 @@ namespace Wikiled.Twitter.Discovery
             return ProcessEnrichment(string.Empty);
         }
 
-        private IEnumerable<ITweet> ProcessEnrichment(string enrichmentItem)
+        private IEnumerable<(ITweet Message, string Topic)> ProcessEnrichment(string enrichmentItem)
         {
             foreach (var topic in topics)
             {
@@ -74,7 +73,7 @@ namespace Wikiled.Twitter.Discovery
                         if (!processed.Contains(tweet.Id))
                         {
                             processed.Add(tweet.Id);
-                            yield return tweet;
+                            yield return (tweet, topic);
                         }
                     }
                 }
