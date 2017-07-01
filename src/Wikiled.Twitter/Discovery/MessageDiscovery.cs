@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Parameters;
@@ -23,37 +24,55 @@ namespace Wikiled.Twitter.Discovery
             this.enrichment = enrichment;
         }
 
+        public long[] Processed => processed.ToArray();
+
+        public void AddProcessed(long[] ids)
+        {
+            Guard.NotNull(() => ids, ids);
+            foreach (var id in ids)
+            {
+                processed.Add(id);
+            }
+        }
+
         public IEnumerable<ITweet> Process()
         {
-            foreach (var enrichmentItem in enrichment)
+            if (enrichment.Length > 0)
             {
-                foreach (var topic in topics)
+                return enrichment.SelectMany(ProcessEnrichment);
+            }
+
+            return ProcessEnrichment(string.Empty);
+        }
+
+        private IEnumerable<ITweet> ProcessEnrichment(string enrichmentItem)
+        {
+            foreach (var topic in topics)
+            {
+                int total = 0;
+                DateTime lastSearch = DateTime.Now;
+                do
                 {
-                    int total = 0;
-                    DateTime lastSearch = DateTime.Now;
-                    do
+                    total = 0;
+                    var searchParameter = GetParameter(topic, enrichmentItem, lastSearch);
+                    var tweets = Search.SearchTweets(searchParameter);
+
+                    foreach (var tweet in tweets)
                     {
-                        total = 0;
-                        var searchParameter = GetParameter(topic, enrichmentItem, lastSearch);
-                        var tweets = Search.SearchTweets(searchParameter);
-
-                        foreach (var tweet in tweets)
+                        total++;
+                        if (tweet.CreatedAt < lastSearch)
                         {
-                            total++;
-                            if (tweet.CreatedAt < lastSearch)
-                            {
-                                lastSearch = tweet.CreatedAt;
-                            }
+                            lastSearch = tweet.CreatedAt;
+                        }
 
-                            if (!processed.Contains(tweet.Id))
-                            {
-                                processed.Add(tweet.Id);
-                                yield return tweet;
-                            }
+                        if (!processed.Contains(tweet.Id))
+                        {
+                            processed.Add(tweet.Id);
+                            yield return tweet;
                         }
                     }
-                    while (total > 0);
                 }
+                while (total > 0);
             }
         }
 
