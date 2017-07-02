@@ -13,24 +13,23 @@ namespace Wikiled.Twitter.Security
 
         private static Logger log = LogManager.GetCurrentClassLogger();
 
-        private string file = "authentication.xml";
-
         public PersistedAuthentication(IAuthentication underlying)
         {
             Guard.NotNull(() => underlying, underlying);
             this.underlying = underlying;
         }
 
-        public ITwitterCredentials Authenticate()
+        public ITwitterCredentials Authenticate(ITwitterCredentials auth)
         {
+            var file = Path.Combine(auth.ConsumerKey, "xml");
             if (File.Exists(file))
             {
                 log.Info("Found saved credentials. Loading...");
                 return XDocument.Load(file).XmlDeserialize<TwitterCredentials>();
             }
 
-            var credentials = underlying.Authenticate();
-            ((TwitterCredentials)credentials).XmlSerialize().Save(file);
+            var credentials = underlying.Authenticate(auth);
+            ((TwitterCredentials)credentials).XmlSerialize().Save(Path.Combine(credentials.ConsumerKey, "xml"));
             return credentials;
         }
     }

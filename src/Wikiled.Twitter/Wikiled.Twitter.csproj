@@ -228,7 +228,7 @@
     <Compile Include="Discovery\MessageDiscovery.cs" />
     <Compile Include="Security\IAuthentication.cs" />
     <Compile Include="Security\PersistedAuthentication.cs" />
-    <Compile Include="Security\PinAuthentication.cs" />
+    <Compile Include="Security\PinConsoleAuthentication.cs" />
     <Compile Include="Security\Credentials.cs" />
     <Compile Include="Streams\MonitoringStream.cs" />
   </ItemGroup>

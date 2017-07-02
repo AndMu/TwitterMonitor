@@ -58,7 +58,7 @@ namespace Wikiled.Twitter.Streams
             ExceptionHandler.SwallowWebExceptions = false;
             ExceptionHandler.WebExceptionReceived += ExceptionHandlerOnWebExceptionReceived;
 
-            stream = Stream.CreateFilteredStream(auth.Authenticate());
+            stream = Stream.CreateFilteredStream(auth.Authenticate(Credentials.Instance.IphoneTwitterCredentials));
             stream.JsonObjectReceived += StreamOnJsonObjectReceived;
             foreach (var keyword in keywords)
             {

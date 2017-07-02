@@ -86,6 +86,7 @@ namespace Wikiled.Twitter.Discovery
             var searchParameter = new SearchTweetsParameters($"\"{topic}\" {enrichmentItem} -filter:retweets");
             searchParameter.Lang = LanguageFilter.English;
             searchParameter.Until = until;
+            searchParameter.MaximumNumberOfResults = 100;
             return searchParameter;
 
         }

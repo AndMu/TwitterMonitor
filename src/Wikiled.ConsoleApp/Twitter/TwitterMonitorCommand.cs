@@ -35,7 +35,7 @@ namespace Wikiled.ConsoleApp.Twitter
             }
 
             using (var streamSource = new TimingStreamSource(path, TimeSpan.FromHours(1)))
-            using (monitoringStream = new MonitoringStream(new FilePersistency(streamSource), new PersistedAuthentication(new PinAuthentication())))
+            using (monitoringStream = new MonitoringStream(new FilePersistency(streamSource), new PersistedAuthentication(new PinConsoleAuthentication())))
             {
                 monitoringStream.Start(keywords, follow);
                 Console.WriteLine("To stop press enter...");

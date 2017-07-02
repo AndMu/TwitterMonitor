@@ -4,6 +4,7 @@ namespace Wikiled.Twitter.Security
 {
     public interface IAuthentication
     {
-        ITwitterCredentials Authenticate();
+        ITwitterCredentials Authenticate(ITwitterCredentials credentials);
+
     }
 }

@@ -7,14 +7,14 @@ using Tweetinvi.Models;
 
 namespace Wikiled.Twitter.Security
 {
-    public class PinAuthentication : IAuthentication
+    public class PinConsoleAuthentication : IAuthentication
     {
         private static Logger log = LogManager.GetCurrentClassLogger();
 
-        public ITwitterCredentials Authenticate()
+        public ITwitterCredentials Authenticate(ITwitterCredentials credentials)
         {
             // Go to the URL so that Twitter authenticates the user and gives him a PIN code
-            var authenticationContext = AuthFlow.InitAuthentication(Credentials.Instance.IphoneTwitterCredentials);
+            var authenticationContext = AuthFlow.InitAuthentication(credentials);
 
             // This line is an example, on how to make the user go on the URL
             Process.Start(authenticationContext.AuthorizationURL);
