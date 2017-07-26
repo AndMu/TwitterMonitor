@@ -31,6 +31,10 @@ namespace Wikiled.ConsoleApp
                 {
                     command = new TwitterLoad();
                 }
+                else if (string.Compare(args[0], "discovery", StringComparison.InvariantCultureIgnoreCase) == 0)
+                {
+                    command = new DiscoveryCommand();
+                }
                 else
                 {
                     throw new ArgumentOutOfRangeException("Root argument -" + args[0]);

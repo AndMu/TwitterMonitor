@@ -266,6 +266,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Twitter\ChunkProcessor.cs" />
+    <Compile Include="Twitter\DiscoveryCommand.cs" />
     <Compile Include="Twitter\IProcessingChunk.cs" />
     <Compile Include="Twitter\ProcessingChunk.cs" />
     <Compile Include="Twitter\TwitterLoad.cs" />

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MoreLinq;
 using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Parameters;
 using Wikiled.Core.Utility.Arguments;
+using Wikiled.Core.Utility.Extensions;
 
 namespace Wikiled.Twitter.Discovery
 {
@@ -16,13 +18,15 @@ namespace Wikiled.Twitter.Discovery
 
         private readonly HashSet<long> processed = new HashSet<long>();
 
-        public MessageDiscovery(string[] topics, string[] enrichment)
+        public MessageDiscovery(string[] topics, params string[] enrichment)
         {
             Guard.NotNull(() => topics, topics);
             Guard.NotNull(() => enrichment, enrichment);
             this.topics = topics;
             this.enrichment = enrichment;
         }
+
+        public int BatchSize { get; set; } = 1;
 
         public long[] Processed => processed.ToArray();
 
@@ -39,10 +43,24 @@ namespace Wikiled.Twitter.Discovery
         {
             if (enrichment.Length > 0)
             {
-                return enrichment.SelectMany(ProcessEnrichment);
+                foreach (IEnumerable<string> batch in enrichment.Batch(BatchSize))
+                {
+                    var item = batch.AccumulateItems(" OR ");
+                    var result = ProcessEnrichment(item);
+                    foreach (var resultItem in result)
+                    {
+                        yield return resultItem;
+                    }
+                }
             }
-
-            return ProcessEnrichment(string.Empty);
+            else
+            {
+                var result = ProcessEnrichment(string.Empty);
+                foreach (var resultItem in result)
+                {
+                    yield return resultItem;
+                }
+            }
         }
 
         private IEnumerable<(ITweet Message, string Topic)> ProcessEnrichment(string enrichmentItem)

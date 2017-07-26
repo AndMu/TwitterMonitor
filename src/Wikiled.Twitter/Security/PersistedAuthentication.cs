@@ -21,7 +21,7 @@ namespace Wikiled.Twitter.Security
 
         public ITwitterCredentials Authenticate(ITwitterCredentials auth)
         {
-            var file = Path.Combine(auth.ConsumerKey, "xml");
+            var file = auth.ConsumerKey + ".xml";
             if (File.Exists(file))
             {
                 log.Info("Found saved credentials. Loading...");
@@ -29,7 +29,7 @@ namespace Wikiled.Twitter.Security
             }
 
             var credentials = underlying.Authenticate(auth);
-            ((TwitterCredentials)credentials).XmlSerialize().Save(Path.Combine(credentials.ConsumerKey, "xml"));
+            ((TwitterCredentials)credentials).XmlSerialize().Save(file);
             return credentials;
         }
     }

@@ -20,6 +20,8 @@ namespace Wikiled.ConsoleApp.Twitter
 
         public string People { get; set; }
 
+        public bool Compress { get; set; }
+
         public string Keywords { get; set; }
 
         public override void Execute()
@@ -35,7 +37,9 @@ namespace Wikiled.ConsoleApp.Twitter
             }
 
             using (var streamSource = new TimingStreamSource(path, TimeSpan.FromHours(1)))
-            using (monitoringStream = new MonitoringStream(new FilePersistency(streamSource), new PersistedAuthentication(new PinConsoleAuthentication())))
+            using (monitoringStream = new MonitoringStream(
+                       Compress ? new FilePersistency(streamSource) : (IPersistency)new FlatFileSerializer(streamSource), 
+                       new PersistedAuthentication(new PinConsoleAuthentication())))
             {
                 monitoringStream.Start(keywords, follow);
                 Console.WriteLine("To stop press enter...");

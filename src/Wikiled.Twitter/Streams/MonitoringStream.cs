@@ -146,17 +146,17 @@ namespace Wikiled.Twitter.Streams
 
         private void StreamOnStreamStopped(object sender, StreamExceptionEventArgs streamExceptionEventArgs)
         {
-            log.Warn("Stream Stopped...");
+            log.Info("Stream Stopped...");
         }
 
         private void StreamOnStreamStarted(object sender, EventArgs eventArgs)
         {
-            log.Warn("Stream started...");
+            log.Info("Stream started...");
         }
 
         private void StreamOnLimitReached(object sender, LimitReachedEventArgs limitReachedEventArgs)
         {
-            string message = $"Limit reatched: {limitReachedEventArgs.NumberOfTweetsNotReceived}";
+            string message = $"Limit reached: {limitReachedEventArgs.NumberOfTweetsNotReceived}";
             log.Info(message);
         }
 

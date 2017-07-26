@@ -61,6 +61,9 @@
       <HintPath>..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.Extensions.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="MoreLinq, Version=2.6.20831.0, Culture=neutral, PublicKeyToken=384d532d7e88985d, processorArchitecture=MSIL">
+      <HintPath>..\packages\morelinq.2.6.0\lib\net40\MoreLinq.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -216,6 +219,7 @@
     <Compile Include="Persistency\Data\TweetUser.cs" />
     <Compile Include="Persistency\Data\TweetData.cs" />
     <Compile Include="Persistency\Data\UserItem.cs" />
+    <Compile Include="Persistency\EventFileSerializer.cs" />
     <Compile Include="Persistency\IPersistency.cs" />
     <Compile Include="Persistency\IMessageSerializer.cs" />
     <Compile Include="Persistency\IStreamSource.cs" />
