@@ -48,6 +48,8 @@ namespace Wikiled.Twitter.Streams
 
         public long TotalReceived => Interlocked.Read(ref totalReceived);
 
+        public LanguageFilter[] LanguageFilters { get; set; }
+
         public async void Start(string[] keywords, string[] follows)
         {
             Guard.NotNull(() => keywords, keywords);
@@ -59,6 +61,14 @@ namespace Wikiled.Twitter.Streams
             ExceptionHandler.WebExceptionReceived += ExceptionHandlerOnWebExceptionReceived;
 
             stream = Stream.CreateFilteredStream(auth.Authenticate(Credentials.Instance.IphoneTwitterCredentials));
+            if (LanguageFilters != null)
+            {
+                foreach (var filter in LanguageFilters)
+                {
+                    stream.AddTweetLanguageFilter(filter);
+                }
+            }
+
             stream.JsonObjectReceived += StreamOnJsonObjectReceived;
             foreach (var keyword in keywords)
             {
