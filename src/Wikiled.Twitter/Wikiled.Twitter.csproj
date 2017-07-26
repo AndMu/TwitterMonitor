@@ -215,6 +215,7 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Persistency\BasicStreamSource.cs" />
     <Compile Include="Persistency\Data\MessageItem.cs" />
     <Compile Include="Persistency\Data\TweetUser.cs" />
     <Compile Include="Persistency\Data\TweetData.cs" />

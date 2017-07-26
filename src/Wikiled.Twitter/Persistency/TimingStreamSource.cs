@@ -54,7 +54,7 @@ namespace Wikiled.Twitter.Persistency
                     stream.Dispose();
                 }
 
-                var fileName = Path.Combine(path, $"data_{DateTime.UtcNow.ToString("yyyyMMdd_HHmm")}.dat");
+                var fileName = Path.Combine(path, $"data_{DateTime.UtcNow:yyyyMMdd_HHmm}.dat");
                 log.Info("Creating: {0}...", fileName);
                 stream = new FileStream(fileName, FileMode.Create);
             }
