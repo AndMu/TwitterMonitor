@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Reactive.Linq;
 using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,13 +26,13 @@ namespace Wikiled.ConsoleApp.Twitter
     {
         private readonly IJsonObjectConverter jsonConvert;
 
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+
+        private readonly ChunkProcessor processor = new ChunkProcessor();
 
         private RedisPersistency persistency;
 
         private int total;
-
-        private readonly ChunkProcessor processor = new ChunkProcessor();
 
         public TwitterLoad()
         {
@@ -90,42 +92,45 @@ namespace Wikiled.ConsoleApp.Twitter
 
         private async Task Process(string[] files)
         {
-            PerformanceMonitor monitor = new PerformanceMonitor(files.Length, 10);
-            var inputBlock = new BufferBlock<ProcessingChunk<string>>(new DataflowBlockOptions { BoundedCapacity = 1000000 });
-            var deserializeBlock = new TransformBlock<ProcessingChunk<string>, ProcessingChunk<TweetDTO>>(
-                json => new ProcessingChunk<TweetDTO>(json.FileName, json.ChunkId, json.TotalChunks, jsonConvert.DeserializeObject<TweetDTO>(json.Data)),
-                new ExecutionDataflowBlockOptions
-                {
-                    BoundedCapacity = 2,
-                    MaxDegreeOfParallelism = Environment.ProcessorCount
-                });
-            var outputBlock = new ActionBlock<ProcessingChunk<TweetDTO>>(
-                Deserialized,
-                new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = Environment.ProcessorCount });
-
-            inputBlock.LinkTo(deserializeBlock, new DataflowLinkOptions { PropagateCompletion = true });
-            deserializeBlock.LinkTo(outputBlock, new DataflowLinkOptions { PropagateCompletion = true });
-
-            foreach (var file in files)
+            PerformanceMonitor monitor = new PerformanceMonitor(files.Length);
+            using (Observable.Interval(TimeSpan.FromSeconds(30)).Subscribe(item => log.Info(monitor)))
             {
-                try
+                var inputBlock = new BufferBlock<ProcessingChunk<string>>(new DataflowBlockOptions { BoundedCapacity = 1000000 });
+                var deserializeBlock = new TransformBlock<ProcessingChunk<string>, ProcessingChunk<TweetDTO>>(
+                    json => new ProcessingChunk<TweetDTO>(json.FileName, json.ChunkId, json.TotalChunks, jsonConvert.DeserializeObject<TweetDTO>(json.Data)),
+                    new ExecutionDataflowBlockOptions
+                        {
+                            BoundedCapacity = 2,
+                            MaxDegreeOfParallelism = Environment.ProcessorCount
+                        });
+                var outputBlock = new ActionBlock<ProcessingChunk<TweetDTO>>(
+                    Deserialized,
+                    new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = Environment.ProcessorCount });
+
+                inputBlock.LinkTo(deserializeBlock, new DataflowLinkOptions { PropagateCompletion = true });
+                deserializeBlock.LinkTo(outputBlock, new DataflowLinkOptions { PropagateCompletion = true });
+
+                foreach (var file in files)
                 {
-                    var data = FilePersistency.Load(file);
-                    for(int i = 0; i < data.Length; i++)
+                    try
                     {
-                        await inputBlock.SendAsync(new ProcessingChunk<string>(file, i, data.Length, data[i])).ConfigureAwait(false);
+                        var data = FilePersistency.Load(file);
+                        for (int i = 0; i < data.Length; i++)
+                        {
+                            await inputBlock.SendAsync(new ProcessingChunk<string>(file, i, data.Length, data[i])).ConfigureAwait(false);
+                        }
+
+                        monitor.Increment();
                     }
+                    catch (Exception ex)
+                    {
+                        log.Error(ex);
+                    }
+                }
 
-                    monitor.Increment();
-                }
-                catch (Exception ex)
-                {
-                    log.Error(ex);
-                }
+                inputBlock.Complete();
+                await Task.WhenAll(inputBlock.Completion, outputBlock.Completion).ConfigureAwait(false);
             }
-
-            inputBlock.Complete();
-            await Task.WhenAll(inputBlock.Completion, outputBlock.Completion).ConfigureAwait(false);
         }
     }
 }
