@@ -4,6 +4,7 @@ using System.Text;
 using CsvHelper;
 using NLog;
 using Tweetinvi;
+using Tweetinvi.Models;
 using Wikiled.Core.Utility.Arguments;
 using Wikiled.Twitter.Discovery;
 using Wikiled.Twitter.Security;
@@ -19,6 +20,8 @@ namespace Wikiled.ConsoleApp.Twitter
 
         [Required]
         public string Out { get; set; }
+
+        public LanguageFilter Language { get; }
 
         public override void Execute()
         {
