@@ -104,7 +104,7 @@ namespace Wikiled.Twitter.Discovery
         private SearchTweetsParameters GetParameter(string topic, string enrichmentItem, DateTime until)
         {
             var searchParameter = new SearchTweetsParameters($"\"{topic}\" {enrichmentItem} -filter:retweets");
-            searchParameter.Lang = Language
+            searchParameter.Lang = Language;
             searchParameter.Until = until;
             searchParameter.MaximumNumberOfResults = 100;
             return searchParameter;

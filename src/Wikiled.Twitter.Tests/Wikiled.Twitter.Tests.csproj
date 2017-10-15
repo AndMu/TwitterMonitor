@@ -214,8 +214,11 @@
     <Reference Include="Wikiled.Core.Utility, Version=2.1.17.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Wikiled.Core.Utility.2.1.17\lib\net462\Wikiled.Core.Utility.dll</HintPath>
     </Reference>
-    <Reference Include="Wikiled.Redis, Version=2.3.16.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Wikiled.Redis.2.3.16\lib\net462\Wikiled.Redis.dll</HintPath>
+    <Reference Include="Wikiled.FlatBuffers, Version=2.3.17.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Wikiled.Redis.2.3.17\lib\net462\Wikiled.FlatBuffers.dll</HintPath>
+    </Reference>
+    <Reference Include="Wikiled.Redis, Version=2.3.17.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Wikiled.Redis.2.3.17\lib\net462\Wikiled.Redis.dll</HintPath>
     </Reference>
     <Reference Include="Wikiled.Testing.Library, Version=1.9.12.160, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Wikiled.Testing.Library.1.9.12.160\lib\net462\Wikiled.Testing.Library.dll</HintPath>
