@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
+using NLog;
 using NUnit.Framework;
 using Tweetinvi;
 using Tweetinvi.Core.Helpers;
@@ -21,29 +23,32 @@ namespace Wikiled.Twitter.Tests.Persistency.Redis
     [TestFixture]
     public class RedisPersistencyTests
     {
+        private static Logger log = LogManager.GetCurrentClassLogger();
+
         private ITweet tweet;
 
         private RedisPersistency persistency;
 
         private RedisLink link;
 
+        private RedisInside.Redis redis;
+
         private MemoryCache cache;
 
         [SetUp]
         public void Setup()
         {
+            redis = new RedisInside.Redis(i => i.Port(6666).LogTo(message => log.Debug(message)));
             var config = new RedisConfiguration("localhost", 6666);
             var jsonConvert = TweetinviContainer.Resolve<IJsonObjectConverter>();
             var jsons =
-                FilePersistency.Load(Path.Combine(TestContext.CurrentContext.TestDirectory,
-                    @"data\data_20160311_1115.dat"));
+                FilePersistency.Load(Path.Combine(TestContext.CurrentContext.TestDirectory, @"data\data_20160311_1115.dat"));
             var tweetDto = jsonConvert.DeserializeObject<TweetDTO>(jsons[0]);
             tweet = Tweet.GenerateTweetFromDTO(tweetDto);
             link = new RedisLink("Trump", new RedisMultiplexer(config));
             link.Open();
             cache = new MemoryCache("Redis");
-            persistency = new RedisPersistency(link,
-                    new RuntimeCache(cache, TimeSpan.FromMinutes(1)));
+            persistency = new RedisPersistency(link, new RuntimeCache(cache, TimeSpan.FromMinutes(1)));
             persistency.ResolveRetweets = true;
         }
 
@@ -52,6 +57,7 @@ namespace Wikiled.Twitter.Tests.Persistency.Redis
         {
             link.Dispose();
             cache.Dispose();
+            redis.Dispose();
         }
 
         [Test]
@@ -139,6 +145,7 @@ namespace Wikiled.Twitter.Tests.Persistency.Redis
         [Test]
         public async Task TestSimpleCache()
         {
+            await persistency.Save(tweet).ConfigureAwait(false);
             var result = await persistency.LoadMessage(tweet.Id).ConfigureAwait(false);
             var result2 = await persistency.LoadMessage(tweet.Id).ConfigureAwait(false);
             Assert.AreSame(result, result2);
