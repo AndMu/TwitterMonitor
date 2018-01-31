@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Wikiled.ConsoleApp": {
+      "commandName": "Project",
+      "commandLineArgs": " monitor -Out=c:\\twitter -Keywords=#Trump,#NeverTrump,#DonaldTrump,#Trump2016,@realDonaldTrump -People=realDonaldTrump"
+    }
+  }
+}
