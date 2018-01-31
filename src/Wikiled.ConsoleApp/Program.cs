@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NLog;
@@ -20,25 +21,21 @@ namespace Wikiled.ConsoleApp
                 return;
             }
 
+            List<Command> commandsList = new List<Command>();
+            commandsList.Add(new TwitterMonitorCommand());
+            commandsList.Add(new TwitterLoad());
+            commandsList.Add(new DiscoveryCommand());
+            var commands = commandsList.ToDictionary(item => item.Name, item => item, StringComparer.OrdinalIgnoreCase);
+
+            if (args.Length == 0 ||
+                !commands.TryGetValue(args[0], out var command))
+            {
+                log.Error("Please specify argumets");
+                return;
+            }
+
             try
             {
-                Command command;
-                if (string.Compare(args[0], "monitor", StringComparison.InvariantCultureIgnoreCase) == 0)
-                {
-                    command = new TwitterMonitorCommand();
-                }
-                else if (string.Compare(args[0], "load", StringComparison.InvariantCultureIgnoreCase) == 0)
-                {
-                    command = new TwitterLoad();
-                }
-                else if (string.Compare(args[0], "discovery", StringComparison.InvariantCultureIgnoreCase) == 0)
-                {
-                    command = new DiscoveryCommand();
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Root argument -" + args[0]);
-                }
 
                 command.ParseArguments(args.Skip(1)); // or CommandLineParser.ParseArguments(c, args.Skip(1))
                 command.Execute();

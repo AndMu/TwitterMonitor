@@ -39,6 +39,8 @@ namespace Wikiled.ConsoleApp.Twitter
             jsonConvert = TweetinviContainer.Resolve<IJsonObjectConverter>();
         }
 
+        public override string Name => "load";
+
         [Required]
         public string Out { get; set; }
 

@@ -10,11 +10,14 @@ namespace Wikiled.ConsoleApp.Twitter
     /// <summary>
     ///     monitor -Out=c:\twitter -Keywords=#Trump,#NeverTrump,#DonaldTrump,#Trump2016,@realDonaldTrump -People=realDonaldTrump
     /// </summary>
+
     public class TwitterMonitorCommand : Command
     {
         private static Logger log = LogManager.GetCurrentClassLogger();
 
         private MonitoringStream monitoringStream;
+
+        public override string Name => "monitor";
 
         public string Out { get; set; }
 
