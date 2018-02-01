@@ -13,7 +13,7 @@
    <PackageReference Include="NUnit" Version="3.9.0" />
    <PackageReference Include="redis-inside" Version="3.2.100" />
    <PackageReference Include="TweetinviAPI" Version="2.1.0" />
-   <PackageReference Include="Wikiled.Core.Utility" Version="2.1.17" />
+   <PackageReference Include="Wikiled.Core.Utility" Version="2.1.18" />
  </ItemGroup>
 
   <ItemGroup>

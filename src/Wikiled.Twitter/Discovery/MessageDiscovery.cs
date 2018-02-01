@@ -10,7 +10,7 @@ using Wikiled.Core.Utility.Extensions;
 
 namespace Wikiled.Twitter.Discovery
 {
-    public class MessageDiscovery
+    public class MessageDiscovery : IMessageDiscovery
     {
         private readonly string[] topics;
 

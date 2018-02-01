@@ -2,7 +2,7 @@
   "profiles": {
     "Wikiled.ConsoleApp": {
       "commandName": "Project",
-      "commandLineArgs": " monitor -Out=c:\\twitter -Keywords=#Trump,#NeverTrump,#DonaldTrump,#Trump2016,@realDonaldTrump -People=realDonaldTrump"
+      "commandLineArgs": "DownloadMessages -Ids=e:\\Source\\sanders-twitter-0.2\\corpus_out.csv -out=.\\Messages.csv -Clean"
     }
   }
 }

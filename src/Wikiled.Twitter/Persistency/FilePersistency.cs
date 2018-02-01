@@ -14,7 +14,7 @@ namespace Wikiled.Twitter.Persistency
 {
     public class FilePersistency : IPersistency
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         private readonly IStreamSource streamSource;
 
@@ -24,6 +24,15 @@ namespace Wikiled.Twitter.Persistency
         {
             Guard.NotNull(() => streamSource, streamSource);
             this.streamSource = streamSource;
+        }
+
+        public static string[] Load(string fileName)
+        {
+            log.Debug("Load [{0}]", fileName);
+            using (var stream = File.OpenRead(fileName))
+            {
+                return Serializer.DeserializeItems<RawTweetData>(stream, PrefixStyle.Base128, 1).Select(item => Encoding.UTF8.GetString(item.Data.UnZip())).ToArray();
+            }
         }
 
         public void Save(ITweetDTO tweet)
@@ -40,20 +49,9 @@ namespace Wikiled.Twitter.Persistency
                     stream.Flush();
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 log.Error(ex);
-            }
-        }
-
-        public static string[] Load(string fileName)
-        {
-            log.Debug("Load [{0}]", fileName);
-            using (var stream = File.OpenRead(fileName))
-            {
-                return Serializer.DeserializeItems<RawTweetData>(stream, PrefixStyle.Base128, 1)
-                    .Select(item => Encoding.UTF8.GetString(item.Data.UnZip()))
-                    .ToArray();
             }
         }
     }

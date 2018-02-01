@@ -10,8 +10,8 @@ namespace Wikiled.Twitter.Security
             IphoneTwitterCredentials = Auth.SetApplicationOnlyCredentials("IQKbtAYlXLripLGPWd0HUA", "GgDYlkSvaPxGxC4X8liwpUoqKwwr3lCADbz8A7ADU");
         }
 
-        public ITwitterCredentials IphoneTwitterCredentials { get; }
-
         public static Credentials Instance { get; } = new Credentials();
+
+        public ITwitterCredentials IphoneTwitterCredentials { get; }
     }
 }

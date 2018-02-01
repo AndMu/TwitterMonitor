@@ -17,8 +17,6 @@ namespace Wikiled.Twitter.Persistency
 {
     public class RedisPersistency : IRepository
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
-
         private const string AllTweets = "All";
 
         private const string AllUserTag = "AllUsers";
@@ -37,11 +35,13 @@ namespace Wikiled.Twitter.Persistency
 
         private const string UserTag = "User";
 
+        private readonly ICacheHandler cache;
+
         private readonly Extractor extractor = new Extractor();
 
-        private readonly IRedisLink redis;
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
-        private readonly ICacheHandler cache;
+        private readonly IRedisLink redis;
 
         public RedisPersistency(IRedisLink redis, ICacheHandler cache)
         {
@@ -73,28 +73,28 @@ namespace Wikiled.Twitter.Persistency
             var key = new IndexKey(this, index, false);
             var observable = redis.Client.GetRecords<TweetData>(key, begin, end);
             return observable.SelectMany(
-                item => Observable.Start(
-                    async () =>
-                    {
-                        var message = await ConstructMessage(item).ConfigureAwait(false);;
-                        if (message.Data.IsRetweet &&
-                           ResolveRetweets)
-                        {
-                            MessageItem retweet;
-                            string id = $"Message{message.Data.RetweetedId}";
-                            if (!cache.TryGetItem(id, out retweet) ||
-                                retweet == null)
-                            {
-                                var retweetData = await LoadMessage(message.Data.RetweetedId).ConfigureAwait(false);
-                                retweet = await ConstructMessage(retweetData).ConfigureAwait(false);
-                            }
+                                 item => Observable.Start(
+                                     async () =>
+                                         {
+                                             var message = await ConstructMessage(item).ConfigureAwait(false);
+                                             
+                                             if (message.Data.IsRetweet && ResolveRetweets)
+                                             {
+                                                 MessageItem retweet;
+                                                 string id = $"Message{message.Data.RetweetedId}";
+                                                 if (!cache.TryGetItem(id, out retweet) ||
+                                                     retweet == null)
+                                                 {
+                                                     var retweetData = await LoadMessage(message.Data.RetweetedId).ConfigureAwait(false);
+                                                     retweet = await ConstructMessage(retweetData).ConfigureAwait(false);
+                                                 }
 
-                            message.Retweet = retweet;
-                        }
+                                                 message.Retweet = retweet;
+                                             }
 
-                        return message;
-                    }))
-                    .Merge();
+                                             return message;
+                                         }))
+                             .Merge();
         }
 
         public IObservable<UserItem> LoadAllUsers(int begin = 0, int end = -1)
@@ -103,10 +103,10 @@ namespace Wikiled.Twitter.Persistency
             var observable = redis.Client.GetRecords<TweetUser>(key, begin, end);
             return observable.Select(
                 item =>
-                {
-                    var userItem = new UserItem(item);
-                    return cache.AddOrGetExisting(item.Id.ToString(), () => userItem);
-                });
+                    {
+                        var userItem = new UserItem(item);
+                        return cache.AddOrGetExisting(item.Id.ToString(), () => userItem);
+                    });
         }
 
         public async Task<TweetData> LoadMessage(long id)
@@ -136,21 +136,6 @@ namespace Wikiled.Twitter.Persistency
             var userItem = await redis.Client.GetRecords<TweetUser>(key).LastAsync();
             user = new UserItem(userItem);
             return cache.AddOrGetExisting(idText, () => user);
-        }
-
-        private void InvalidateUser(long id)
-        {
-            UserItem user;
-            string idText = $"User{id}";
-            if (cache.TryGetItem(idText, out user))
-            {
-                cache.Remove(idText);
-                foreach (var userMessage in user.Messages)
-                {
-                    string idMessage = $"Message{userMessage.Data.Id}";
-                    cache.Remove(idMessage);
-                }
-            }
         }
 
         public async Task Save(ITweet tweet)
@@ -349,6 +334,21 @@ namespace Wikiled.Twitter.Persistency
         {
             string[] key = { UserTag, id.ToString() };
             return new RepositoryKey(this, new ObjectKey(key));
+        }
+
+        private void InvalidateUser(long id)
+        {
+            UserItem user;
+            string idText = $"User{id}";
+            if (cache.TryGetItem(idText, out user))
+            {
+                cache.Remove(idText);
+                foreach (var userMessage in user.Messages)
+                {
+                    string idMessage = $"Message{userMessage.Data.Id}";
+                    cache.Remove(idMessage);
+                }
+            }
         }
     }
 }

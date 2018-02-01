@@ -1,10 +1,10 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using Tweetinvi.Models;
 
 namespace Wikiled.Twitter.Discovery
 {
     public interface IMessagesDownloader
     {
-        IObservable<ITweet> Download(IObservable<long> ids);
+        IEnumerable<ITweet> Download(long[] ids);
     }
 }

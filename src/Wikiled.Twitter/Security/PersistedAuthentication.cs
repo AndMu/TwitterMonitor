@@ -1,17 +1,17 @@
 ﻿using System.IO;
-using System.Xml.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NLog;
 using Tweetinvi.Models;
 using Wikiled.Core.Utility.Arguments;
-using Wikiled.Core.Utility.Serialization;
 
 namespace Wikiled.Twitter.Security
 {
     public class PersistedAuthentication : IAuthentication
     {
-        private readonly IAuthentication underlying;
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private readonly IAuthentication underlying;
 
         public PersistedAuthentication(IAuthentication underlying)
         {
@@ -21,15 +21,19 @@ namespace Wikiled.Twitter.Security
 
         public ITwitterCredentials Authenticate(ITwitterCredentials auth)
         {
-            var file = auth.ConsumerKey + ".xml";
+            var file = "key.auth";
+            string json;
             if (File.Exists(file))
             {
                 log.Info("Found saved credentials. Loading...");
-                return XDocument.Load(file).XmlDeserialize<TwitterCredentials>();
+                json = File.ReadAllText(file);
+                return JsonConvert.DeserializeObject<TwitterCredentials>(json);
             }
 
             var credentials = underlying.Authenticate(auth);
-            ((TwitterCredentials)credentials).XmlSerialize().Save(file);
+            json = JsonConvert.SerializeObject((TwitterCredentials)credentials);
+            string jsonFormatted = JToken.Parse(json).ToString(Formatting.Indented);
+            File.WriteAllText(file, jsonFormatted);
             return credentials;
         }
     }
