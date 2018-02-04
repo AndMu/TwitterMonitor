@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MoreLinq;
+using NLog;
 using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Parameters;
@@ -12,6 +13,8 @@ namespace Wikiled.Twitter.Discovery
 {
     public class MessageDiscovery : IMessageDiscovery
     {
+        private static Logger log = LogManager.GetCurrentClassLogger();
+
         private readonly string[] topics;
 
         private readonly string[] enrichment;
@@ -76,12 +79,13 @@ namespace Wikiled.Twitter.Discovery
                     total = 0;
                     var searchParameter = GetParameter(topic, enrichmentItem, lastSearch);
                     var tweets = Search.SearchTweets(searchParameter) ?? Search.SearchTweets(searchParameter);
-
                     if (tweets == null)
                     {
+                        log.Debug("Not Found for [{0}]", searchParameter.SearchQuery);
                         yield break;
                     }
 
+                    log.Debug("Retrieved for [{0}]", searchParameter.SearchQuery);
                     foreach (var tweet in tweets)
                     {
                         total++;

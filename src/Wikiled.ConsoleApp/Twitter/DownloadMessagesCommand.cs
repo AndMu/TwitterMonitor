@@ -65,7 +65,7 @@ namespace Wikiled.ConsoleApp.Twitter
                                                       {
                                                           csvDataTarget.WriteField(item.Id);
                                                           csvDataTarget.WriteField(item.CreatedAt);
-                                                          csvDataTarget.WriteField(item.CreatedBy.Name);
+                                                          csvDataTarget.WriteField(item.CreatedBy.Id);
                                                           var text = item.Text;
                                                           if (Clean)
                                                           {

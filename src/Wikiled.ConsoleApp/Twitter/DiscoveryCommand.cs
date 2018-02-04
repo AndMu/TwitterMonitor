@@ -5,7 +5,6 @@ using System.Text;
 using CsvHelper;
 using NLog;
 using Tweetinvi;
-using Tweetinvi.Models;
 using Wikiled.Core.Utility.Arguments;
 using Wikiled.Twitter.Discovery;
 using Wikiled.Twitter.Security;
@@ -22,8 +21,6 @@ namespace Wikiled.ConsoleApp.Twitter
         [Required]
         public string Out { get; set; }
 
-        public LanguageFilter Language { get; }
-
         public override void Execute()
         {
             log.Info("Starting twitter monitoring...");
@@ -35,6 +32,7 @@ namespace Wikiled.ConsoleApp.Twitter
 
             RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
             MessageDiscovery discovery = new MessageDiscovery(keywords);
+
             var auth = new PersistedAuthentication(new PinConsoleAuthentication());
             var cred = auth.Authenticate(Credentials.Instance.IphoneTwitterCredentials);
             using (var streamWriter = new StreamWriter(Out, true, new UTF8Encoding(false)))

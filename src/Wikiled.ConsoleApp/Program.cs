@@ -25,8 +25,9 @@ namespace Wikiled.ConsoleApp
             commandsList.Add(new TwitterMonitorCommand());
             commandsList.Add(new TwitterLoad());
             commandsList.Add(new DiscoveryCommand());
-            commandsList.Add(new DownloadMessagesCommand()); 
-             var commands = commandsList.ToDictionary(item => item.Name, item => item, StringComparer.OrdinalIgnoreCase);
+            commandsList.Add(new DownloadMessagesCommand());
+            commandsList.Add(new EnrichCommand());
+            var commands = commandsList.ToDictionary(item => item.Name, item => item, StringComparer.OrdinalIgnoreCase);
 
             if (args.Length == 0 ||
                 !commands.TryGetValue(args[0], out var command))
