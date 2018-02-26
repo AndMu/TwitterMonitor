@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Device.Location;
-using Wikiled.Core.Utility.Arguments;
+using Wikiled.Common.Arguments;
+using Wikiled.Twitter.Discovery;
 
 namespace Wikiled.Twitter.Persistency.Data
 {
@@ -12,6 +12,7 @@ namespace Wikiled.Twitter.Persistency.Data
             Guard.NotNull(() => data, data);
             User = user;
             Data = data;
+            
             Coordinates = new GeoCoordinate(data.Latitude, data.Longitude);
             DateTime = new DateTime(data.Tick);
         }

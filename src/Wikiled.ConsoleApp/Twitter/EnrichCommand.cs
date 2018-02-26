@@ -11,7 +11,7 @@ using CsvHelper;
 using NLog;
 using Tweetinvi;
 using Wikiled.Arff.Persistence;
-using Wikiled.Core.Utility.Arguments;
+using Wikiled.Console.Arguments;
 using Wikiled.Core.Utility.Logging;
 using Wikiled.Text.Analysis.Twitter;
 using Wikiled.Twitter.Discovery;

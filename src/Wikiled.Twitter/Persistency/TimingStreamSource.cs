@@ -3,24 +3,24 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using NLog;
-using Wikiled.Core.Utility.Arguments;
-using Wikiled.Core.Utility.Extensions;
+using Wikiled.Common.Arguments;
+using Wikiled.Common.Extensions;
 
 namespace Wikiled.Twitter.Persistency
 {
     public class TimingStreamSource : IStreamSource
     {
-        private readonly string path;
+        private readonly TimeSpan fileCreation;
 
-        private FileStream stream;
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+
+        private readonly string path;
 
         private readonly Stopwatch stopwatch = new Stopwatch();
 
-        private readonly TimeSpan fileCreation;
-
         private int isDisposed;
 
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private FileStream stream;
 
         public TimingStreamSource(string path, TimeSpan fileCreation)
         {
@@ -31,10 +31,13 @@ namespace Wikiled.Twitter.Persistency
             path.EnsureDirectoryExistence();
         }
 
-        private bool IsDisposed
+        private bool IsDisposed { get => Interlocked.CompareExchange(ref isDisposed, 0, 0) == 1; set => Interlocked.Exchange(ref isDisposed, value ? 1 : 0); }
+
+        public void Dispose()
         {
-            get => Interlocked.CompareExchange(ref isDisposed, 0, 0) == 1;
-            set => Interlocked.Exchange(ref isDisposed, value ? 1 : 0);
+            log.Debug("Dispose");
+            IsDisposed = true;
+            stream?.Dispose();
         }
 
         public Stream GetStream()
@@ -60,13 +63,6 @@ namespace Wikiled.Twitter.Persistency
             }
 
             return stream;
-        }
-
-        public void Dispose()
-        {
-            log.Debug("Dispose");
-            IsDisposed = true;
-            stream?.Dispose();
         }
     }
 }

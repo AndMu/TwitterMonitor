@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using Tweetinvi.Models;
-using Wikiled.Core.Utility.Arguments;
-using Wikiled.Core.Utility.Cache;
+using Wikiled.Common.Arguments;
 using Wikiled.Redis.Indexing;
 using Wikiled.Redis.Keys;
 using Wikiled.Redis.Logic;
@@ -17,6 +17,8 @@ namespace Wikiled.Twitter.Persistency
 {
     public class RedisPersistency : IRepository
     {
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+
         private const string AllTweets = "All";
 
         private const string AllUserTag = "AllUsers";
@@ -35,15 +37,13 @@ namespace Wikiled.Twitter.Persistency
 
         private const string UserTag = "User";
 
-        private readonly ICacheHandler cache;
+        private readonly IMemoryCache cache;
 
         private readonly Extractor extractor = new Extractor();
 
-        private static readonly Logger log = LogManager.GetCurrentClassLogger();
-
         private readonly IRedisLink redis;
 
-        public RedisPersistency(IRedisLink redis, ICacheHandler cache)
+        public RedisPersistency(IRedisLink redis, IMemoryCache cache)
         {
             Guard.NotNull(() => redis, redis);
             Guard.NotNull(() => cache, cache);
@@ -77,17 +77,16 @@ namespace Wikiled.Twitter.Persistency
                                      async () =>
                                          {
                                              var message = await ConstructMessage(item).ConfigureAwait(false);
-                                             
                                              if (message.Data.IsRetweet && ResolveRetweets)
                                              {
-                                                 MessageItem retweet;
                                                  string id = $"Message{message.Data.RetweetedId}";
-                                                 if (!cache.TryGetItem(id, out retweet) ||
-                                                     retweet == null)
-                                                 {
-                                                     var retweetData = await LoadMessage(message.Data.RetweetedId).ConfigureAwait(false);
-                                                     retweet = await ConstructMessage(retweetData).ConfigureAwait(false);
-                                                 }
+                                                 MessageItem retweet = await cache.GetOrCreateAsync(
+                                                     id,
+                                                     async cacheItem =>
+                                                         {
+                                                             var retweetData = await LoadMessage(message.Data.RetweetedId).ConfigureAwait(false);
+                                                             return await ConstructMessage(retweetData).ConfigureAwait(false);
+                                                         }).ConfigureAwait(false);
 
                                                  message.Retweet = retweet;
                                              }
@@ -105,7 +104,7 @@ namespace Wikiled.Twitter.Persistency
                 item =>
                     {
                         var userItem = new UserItem(item);
-                        return cache.AddOrGetExisting(item.Id.ToString(), () => userItem);
+                        return cache.GetOrCreate(item.Id.ToString(), cacheEntry => userItem);
                     });
         }
 
@@ -114,20 +113,20 @@ namespace Wikiled.Twitter.Persistency
             var key = GetTweetKey(id);
             string idText = id.ToString();
             TweetData message;
-            if (cache.TryGetItem(idText, out message))
+            if (cache.TryGetValue(idText, out message))
             {
                 return message;
             }
 
             message = await redis.Client.GetRecords<TweetData>(key).FirstOrDefaultAsync();
-            return cache.AddOrGetExisting(idText, () => message);
+            return cache.GetOrCreate(idText, cacheEntry => message);
         }
 
         public async Task<UserItem> LoadUser(long id)
         {
             UserItem user;
             string idText = $"User{id}";
-            if (cache.TryGetItem(idText, out user))
+            if (cache.TryGetValue(idText, out user))
             {
                 return user;
             }
@@ -135,7 +134,7 @@ namespace Wikiled.Twitter.Persistency
             var key = GetUserKey(id);
             var userItem = await redis.Client.GetRecords<TweetUser>(key).LastAsync();
             user = new UserItem(userItem);
-            return cache.AddOrGetExisting(idText, () => user);
+            return cache.GetOrCreate(idText, cacheEntry => user);
         }
 
         public async Task Save(ITweet tweet)
@@ -143,13 +142,13 @@ namespace Wikiled.Twitter.Persistency
             Guard.NotNull(() => tweet, tweet);
             TweetData data;
             var idText = tweet.Id.ToString();
-            if (cache.TryGetItem(idText, out data))
+            if (cache.TryGetValue(idText, out data))
             {
                 return;
             }
 
             data = new TweetData();
-            var cached = cache.AddOrGetExisting(idText, () => data);
+            var cached = cache.GetOrCreate(idText, cacheEntry => data);
             if (cached != data)
             {
                 return;
@@ -257,7 +256,7 @@ namespace Wikiled.Twitter.Persistency
             }
 
             await redis.Client.AddRecord(key, user).ConfigureAwait(false);
-            cache.SetItem(user.Id.ToString(), user);
+            cache.Set(user.Id.ToString(), user);
         }
 
         public async Task SaveUser(IUser user)
@@ -265,13 +264,13 @@ namespace Wikiled.Twitter.Persistency
             Guard.NotNull(() => user, user);
             TweetUser data;
             var idText = user.Id.ToString();
-            if (cache.TryGetItem(idText, out data))
+            if (cache.TryGetValue(idText, out data))
             {
                 return;
             }
 
             data = new TweetUser();
-            var cached = cache.AddOrGetExisting(idText, () => data);
+            var cached = cache.GetOrCreate(idText, cacheEntry => data);
             if (cached != data)
             {
                 return;
@@ -315,7 +314,7 @@ namespace Wikiled.Twitter.Persistency
             var mainId = $"Message{item.Id}";
             var user = await LoadUser(item.CreatorId).ConfigureAwait(false);
             var message = new MessageItem(user, item);
-            var added = cache.AddOrGetExisting(mainId, () => message);
+            var added = cache.GetOrCreate(mainId, cacheEntry => message);
             if (added == message)
             {
                 added.User.Add(added);
@@ -340,7 +339,7 @@ namespace Wikiled.Twitter.Persistency
         {
             UserItem user;
             string idText = $"User{id}";
-            if (cache.TryGetItem(idText, out user))
+            if (cache.TryGetValue(idText, out user))
             {
                 cache.Remove(idText);
                 foreach (var userMessage in user.Messages)

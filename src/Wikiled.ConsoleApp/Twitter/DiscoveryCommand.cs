@@ -5,6 +5,7 @@ using System.Text;
 using CsvHelper;
 using NLog;
 using Tweetinvi;
+using Wikiled.Console.Arguments;
 using Wikiled.Core.Utility.Arguments;
 using Wikiled.Twitter.Discovery;
 using Wikiled.Twitter.Security;

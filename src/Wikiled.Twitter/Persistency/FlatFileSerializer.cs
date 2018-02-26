@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using Tweetinvi.Models.DTO;
-using Wikiled.Core.Utility.Arguments;
+using Wikiled.Common.Arguments;
 using Wikiled.Text.Analysis.Twitter;
 
 namespace Wikiled.Twitter.Persistency

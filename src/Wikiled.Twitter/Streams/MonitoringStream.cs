@@ -10,7 +10,7 @@ using Tweetinvi.Events;
 using Tweetinvi.Models;
 using Tweetinvi.Models.DTO;
 using Tweetinvi.Streaming;
-using Wikiled.Core.Utility.Arguments;
+using Wikiled.Common.Arguments;
 using Wikiled.Twitter.Persistency;
 using Wikiled.Twitter.Security;
 
@@ -18,19 +18,19 @@ namespace Wikiled.Twitter.Streams
 {
     public class MonitoringStream : IDisposable
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private readonly IAuthentication auth;
 
-        private IFilteredStream stream;
+        private readonly HashSet<long> following = new HashSet<long>();
+
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         private readonly IPersistency persistency;
 
         private int isActive;
 
+        private IFilteredStream stream;
+
         private long totalReceived;
-
-        private readonly IAuthentication auth;
-
-        private readonly HashSet<long> following = new HashSet<long>();
 
         public MonitoringStream(IPersistency persistency, IAuthentication auth)
         {
@@ -40,15 +40,16 @@ namespace Wikiled.Twitter.Streams
             this.auth = auth;
         }
 
-        public bool IsActive
-        {
-            get => Interlocked.CompareExchange(ref isActive, 0, 0) == 1;
-            private set => Interlocked.Exchange(ref isActive, value ? 1 : 0);
-        }
+        public bool IsActive { get => Interlocked.CompareExchange(ref isActive, 0, 0) == 1; private set => Interlocked.Exchange(ref isActive, value ? 1 : 0); }
+
+        public LanguageFilter[] LanguageFilters { get; set; }
 
         public long TotalReceived => Interlocked.Read(ref totalReceived);
 
-        public LanguageFilter[] LanguageFilters { get; set; }
+        public void Dispose()
+        {
+            Stop();
+        }
 
         public async void Start(string[] keywords, string[] follows)
         {
@@ -112,6 +113,17 @@ namespace Wikiled.Twitter.Streams
             while (IsActive);
         }
 
+        public void Stop()
+        {
+            if (!IsActive)
+            {
+                return;
+            }
+
+            IsActive = false;
+            stream?.StopStream();
+        }
+
         private void StreamOnJsonObjectReceived(object sender, JsonObjectEventArgs jsonObjectEventArgs)
         {
             try
@@ -137,17 +149,6 @@ namespace Wikiled.Twitter.Streams
             log.Error(genericEventArgs.Value.WebException);
         }
 
-        public void Stop()
-        {
-            if (!IsActive)
-            {
-                return;
-            }
-
-            IsActive = false;
-            stream?.StopStream();
-        }
-
         private void StreamOnWarningFallingBehindDetected(object sender, WarningFallingBehindEventArgs warningFallingBehindEventArgs)
         {
             string message = $"Falling behind {warningFallingBehindEventArgs.WarningMessage}...";
@@ -168,11 +169,6 @@ namespace Wikiled.Twitter.Streams
         {
             string message = $"Limit reached: {limitReachedEventArgs.NumberOfTweetsNotReceived}";
             log.Info(message);
-        }
-
-        public void Dispose()
-        {
-            Stop();
         }
     }
 }

@@ -1,28 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
  <PropertyGroup>
-    <TargetFrameworks>net462</TargetFrameworks>
+    <TargetFrameworks>NETSTANDARD2.0</TargetFrameworks>
     <Authors>Wikiled</Authors>
     <Description>Twitter Monitor</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <ProjectUrl>https://github.com/AndMu/TwitterMonitor</ProjectUrl>
   </PropertyGroup>
 
- <ItemGroup>
-   <Compile Include="..\GlobalAssemblyInfo.cs" Link="Properties\GlobalAssemblyInfo.cs" />
- </ItemGroup>
-
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Properties\**" />
+    <EmbeddedResource Remove="Properties\**" />
+    <None Remove="Properties\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+   <PackageReference Include="GeoCoordinate" Version="2.0.1" />
    <PackageReference Include="morelinq" Version="2.10.0" />
-   <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+   <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+   <PackageReference Include="NLog" Version="4.5.0-rc06" />
    <PackageReference Include="TweetinviAPI" Version="2.1.0" />
-   <PackageReference Include="Wikiled.Core.Utility" Version="2.1.18" />
-   <PackageReference Include="Wikiled.Redis" Version="2.4.10" />
-   <PackageReference Include="Wikiled.Text.Analysis" Version="1.4.10" />
+   <PackageReference Include="Wikiled.Common" Version="1.0.8" />
+   <PackageReference Include="Wikiled.Redis" Version="3.0.8" />
+   <PackageReference Include="Wikiled.Text.Analysis" Version="1.5.1" />
  </ItemGroup>
 
   <ItemGroup>
@@ -32,14 +36,6 @@
     <None Update="vendors.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Device" />
   </ItemGroup>
 
 </Project>
