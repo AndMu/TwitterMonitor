@@ -1,26 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
- <PropertyGroup>
+  <PropertyGroup>
     <TargetFrameworks>net462</TargetFrameworks>
-    <Authors>Wikiled</Authors>
-    <Description>Twitter Monitor</Description>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <ProjectUrl>https://github.com/AndMu/TwitterMonitor</ProjectUrl>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
- <ItemGroup>
-   <Compile Remove="Properties\**" />
-   <EmbeddedResource Remove="Properties\**" />
-   <None Remove="Properties\**" />
- </ItemGroup>
-
- <ItemGroup>
-   <PackageReference Include="Moq" Version="4.8.2" />
-   <PackageReference Include="NUnit" Version="3.9.0" />
-   <PackageReference Include="redis-inside" Version="3.2.100" />
-   <PackageReference Include="TweetinviAPI" Version="2.1.0" />
-   <PackageReference Include="Wikiled.Core.Utility" Version="2.1.18" />
- </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.8.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+    <PackageReference Include="NUnit" Version="3.9.0" />
+    <PackageReference Include="TweetinviAPI" Version="2.1.0" />
+    <PackageReference Include="Wikiled.Core.Utility" Version="2.1.18" />
+    <PackageReference Include="Wikiled.RedisInside" Version="3.2.100.10" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="Data\data_20160311_1115.dat">
@@ -38,8 +30,10 @@
     <ProjectReference Include="..\Wikiled.Twitter\Wikiled.Twitter.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="System.Runtime.Caching" />
-  </ItemGroup>
+  <Target Name="ForceGenerationOfBindingRedirects" AfterTargets="ResolveAssemblyReferences" BeforeTargets="GenerateBindingRedirects" Condition="'$(AutoGenerateBindingRedirects)' == 'true'">
+    <PropertyGroup>
+      <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    </PropertyGroup>
+  </Target>
 
 </Project>

@@ -1,6 +1,6 @@
 ﻿using System;
 using NLog;
-using Wikiled.Core.Utility.Arguments;
+using Wikiled.Console.Arguments;
 using Wikiled.Twitter.Persistency;
 using Wikiled.Twitter.Security;
 using Wikiled.Twitter.Streams;
@@ -10,7 +10,6 @@ namespace Wikiled.ConsoleApp.Twitter
     /// <summary>
     ///     monitor -Out=c:\twitter -Keywords=#Trump,#NeverTrump,#DonaldTrump,#Trump2016,@realDonaldTrump -People=realDonaldTrump
     /// </summary>
-
     public class TwitterMonitorCommand : Command
     {
         private static Logger log = LogManager.GetCurrentClassLogger();
@@ -45,8 +44,8 @@ namespace Wikiled.ConsoleApp.Twitter
                        new PersistedAuthentication(new PinConsoleAuthentication())))
             {
                 monitoringStream.Start(keywords, follow);
-                Console.WriteLine("To stop press enter...");
-                Console.ReadLine();
+                System.Console.WriteLine("To stop press enter...");
+                System.Console.ReadLine();
                 monitoringStream.Stop();
             }
         }

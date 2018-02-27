@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NLog;
+using Wikiled.Console.Arguments;
 using Wikiled.ConsoleApp.Twitter;
-using Wikiled.Core.Utility.Arguments;
 
 namespace Wikiled.ConsoleApp
 {
@@ -45,7 +45,7 @@ namespace Wikiled.ConsoleApp
             catch (Exception ex)
             {
                 log.Error(ex);
-                Console.ReadLine();
+                System.Console.ReadLine();
             }
         }
     }

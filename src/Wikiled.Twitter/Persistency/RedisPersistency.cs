@@ -84,6 +84,7 @@ namespace Wikiled.Twitter.Persistency
                                                      id,
                                                      async cacheItem =>
                                                          {
+                                                             cacheItem.SlidingExpiration = TimeSpan.FromMinutes(1);
                                                              var retweetData = await LoadMessage(message.Data.RetweetedId).ConfigureAwait(false);
                                                              return await ConstructMessage(retweetData).ConfigureAwait(false);
                                                          }).ConfigureAwait(false);
@@ -119,7 +120,13 @@ namespace Wikiled.Twitter.Persistency
             }
 
             message = await redis.Client.GetRecords<TweetData>(key).FirstOrDefaultAsync();
-            return cache.GetOrCreate(idText, cacheEntry => message);
+            return cache.GetOrCreate(
+                idText,
+                cacheEntry =>
+                    {
+                        cacheEntry.SlidingExpiration = TimeSpan.FromMinutes(1);
+                        return message;
+                    });
         }
 
         public async Task<UserItem> LoadUser(long id)
@@ -134,7 +141,13 @@ namespace Wikiled.Twitter.Persistency
             var key = GetUserKey(id);
             var userItem = await redis.Client.GetRecords<TweetUser>(key).LastAsync();
             user = new UserItem(userItem);
-            return cache.GetOrCreate(idText, cacheEntry => user);
+            return cache.GetOrCreate(
+                idText,
+                cacheEntry =>
+                    {
+                        cacheEntry.SlidingExpiration = TimeSpan.FromMinutes(1);
+                        return user;
+                    });
         }
 
         public async Task Save(ITweet tweet)
@@ -148,7 +161,13 @@ namespace Wikiled.Twitter.Persistency
             }
 
             data = new TweetData();
-            var cached = cache.GetOrCreate(idText, cacheEntry => data);
+            var cached = cache.GetOrCreate(
+                idText,
+                cacheEntry =>
+                    {
+                        cacheEntry.SlidingExpiration = TimeSpan.FromMinutes(1);
+                        return data;
+                    });
             if (cached != data)
             {
                 return;
@@ -256,7 +275,7 @@ namespace Wikiled.Twitter.Persistency
             }
 
             await redis.Client.AddRecord(key, user).ConfigureAwait(false);
-            cache.Set(user.Id.ToString(), user);
+            cache.Set(user.Id.ToString(), user, new MemoryCacheEntryOptions() { SlidingExpiration = TimeSpan.FromMinutes(1) });
         }
 
         public async Task SaveUser(IUser user)
@@ -270,7 +289,13 @@ namespace Wikiled.Twitter.Persistency
             }
 
             data = new TweetUser();
-            var cached = cache.GetOrCreate(idText, cacheEntry => data);
+            var cached = cache.GetOrCreate(
+                idText,
+                cacheEntry =>
+                    {
+                        cacheEntry.SlidingExpiration = TimeSpan.FromMinutes(1);
+                        return data;
+                    });
             if (cached != data)
             {
                 return;
@@ -314,7 +339,13 @@ namespace Wikiled.Twitter.Persistency
             var mainId = $"Message{item.Id}";
             var user = await LoadUser(item.CreatorId).ConfigureAwait(false);
             var message = new MessageItem(user, item);
-            var added = cache.GetOrCreate(mainId, cacheEntry => message);
+            var added = cache.GetOrCreate(
+                mainId,
+                cacheEntry =>
+                    {
+                        cacheEntry.SlidingExpiration = TimeSpan.FromMinutes(1);
+                        return message;
+                    });
             if (added == message)
             {
                 added.User.Add(added);

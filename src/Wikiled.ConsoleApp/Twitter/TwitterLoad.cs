@@ -2,20 +2,20 @@
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Reactive.Linq;
-using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using Tweetinvi;
 using Tweetinvi.Core.Helpers;
 using Tweetinvi.Logic.DTO;
-using Wikiled.Core.Utility.Arguments;
-using Wikiled.Core.Utility.Cache;
+using Wikiled.Console.Arguments;
 using Wikiled.Core.Utility.Logging;
 using Wikiled.Redis.Config;
 using Wikiled.Redis.Logic;
 using Wikiled.Twitter.Persistency;
+using MemoryCache = System.Runtime.Caching.MemoryCache;
 
 namespace Wikiled.ConsoleApp.Twitter
 {
@@ -24,9 +24,9 @@ namespace Wikiled.ConsoleApp.Twitter
     /// </summary>
     public class TwitterLoad : Command
     {
-        private readonly IJsonObjectConverter jsonConvert;
-
         private static readonly Logger log = LogManager.GetCurrentClassLogger();
+
+        private readonly IJsonObjectConverter jsonConvert;
 
         private readonly ChunkProcessor processor = new ChunkProcessor();
 
@@ -54,7 +54,7 @@ namespace Wikiled.ConsoleApp.Twitter
                 log.Info("Starting twitter loading...");
                 RedisLink link = new RedisLink(TypeName, new RedisMultiplexer(new RedisConfiguration("localhost", 6370)));
                 link.Open();
-                persistency = new RedisPersistency(link, new RuntimeCache(MemoryCache.Default, TimeSpan.FromMinutes(1)));
+                persistency = new RedisPersistency(link, new Microsoft.Extensions.Caching.Memory.MemoryCache(new MemoryCacheOptions()));
                 var files = Directory.GetFiles(Out, "*.dat", SearchOption.AllDirectories);
                 Process(files).Wait();
                 link.Dispose();

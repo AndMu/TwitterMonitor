@@ -1,17 +1,14 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Runtime.Caching;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using NUnit.Framework;
 using Tweetinvi;
 using Tweetinvi.Core.Helpers;
 using Tweetinvi.Logic.DTO;
 using Tweetinvi.Models;
-using Wikiled.Core.Utility.Cache;
 using Wikiled.Redis.Config;
 using Wikiled.Redis.Keys;
 using Wikiled.Redis.Logic;
@@ -47,8 +44,8 @@ namespace Wikiled.Twitter.Tests.Persistency.Redis
             tweet = Tweet.GenerateTweetFromDTO(tweetDto);
             link = new RedisLink("Trump", new RedisMultiplexer(config));
             link.Open();
-            cache = new MemoryCache("Redis");
-            persistency = new RedisPersistency(link, new RuntimeCache(cache, TimeSpan.FromMinutes(1)));
+            cache = new MemoryCache(new MemoryCacheOptions());
+            persistency = new RedisPersistency(link, cache);
             persistency.ResolveRetweets = true;
         }
 
@@ -83,8 +80,8 @@ namespace Wikiled.Twitter.Tests.Persistency.Redis
         {
             await persistency.Save(tweet).ConfigureAwait(false);
             var user = await persistency.LoadUser(tweet.CreatedBy.Id).ConfigureAwait(false);
-            MemoryCache.Default.Remove($"User{user.User.Id}");
-            MemoryCache.Default.Remove($"{user.User.Id}");
+            cache.Remove($"User{user.User.Id}");
+            cache.Remove($"{user.User.Id}");
             string[] key = { "User", user.User.Id.ToString() };
             var repKey = new RepositoryKey(persistency, new ObjectKey(key));
             await link.Client.DeleteAll<TweetUser>(repKey).ConfigureAwait(false);
