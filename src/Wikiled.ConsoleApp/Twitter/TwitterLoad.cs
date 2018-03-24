@@ -10,12 +10,11 @@ using NLog;
 using Tweetinvi;
 using Tweetinvi.Core.Helpers;
 using Tweetinvi.Logic.DTO;
+using Wikiled.Common.Logging;
 using Wikiled.Console.Arguments;
-using Wikiled.Core.Utility.Logging;
 using Wikiled.Redis.Config;
 using Wikiled.Redis.Logic;
 using Wikiled.Twitter.Persistency;
-using MemoryCache = System.Runtime.Caching.MemoryCache;
 
 namespace Wikiled.ConsoleApp.Twitter
 {
