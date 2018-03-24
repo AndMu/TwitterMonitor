@@ -34,12 +34,7 @@ namespace Wikiled.Twitter.Tests.Persistency.Data
         public void AverageDistance()
         {
             Assert.AreEqual(0, instance.AverageDistance);
-            instance.Add(new MessageItem(new UserItem(new TweetUser()), new TweetData()
-            {
-                Tick = 1,
-                Latitude = 48.237867,
-                Longitude = 16.389477
-            }));
+            instance.Add(new MessageItem(new UserItem(new TweetUser()), new TweetData { Tick = 1, Latitude = 48.237867, Longitude = 16.389477 }));
             Assert.AreEqual(0, instance.AverageDistance);
             instance.Add(
                 new MessageItem(

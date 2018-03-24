@@ -16,6 +16,7 @@ namespace Wikiled.Twitter.Persistency.Data
             Coordinates = new GeoCoordinate(data.Latitude, data.Longitude);
             DateTime = new DateTime(data.Tick);
         }
+
         public TweetData Data { get; }
 
         public UserItem User { get; }

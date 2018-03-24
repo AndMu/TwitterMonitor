@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Wikiled.Twitter.Discovery
+namespace Wikiled.Twitter.Persistency.Data
 {
     /// <summary>
     ///     Represents a geographical location that is determined by latitude and longitude
@@ -121,16 +121,14 @@ namespace Wikiled.Twitter.Discovery
         /// <exception cref="T:System.ArgumentOutOfRangeException">Course is set outside the valid range.</exception>
         public double Course
         {
-            get
-            {
-                return course;
-            }
-
+            get => course;
             set
             {
-                if (value < 0.0 ||
-                    value > 360.0)
+                if (!double.IsNaN(value) && (value < 0.0 || value > 360.0))
+                {
                     throw new ArgumentOutOfRangeException("course", "Argument must be in range 0 to 360");
+                }
+
                 course = value;
             }
         }
@@ -144,15 +142,14 @@ namespace Wikiled.Twitter.Discovery
         /// <exception cref="T:System.ArgumentOutOfRangeException">HorizontalAccuracy is set outside the valid range.</exception>
         public double HorizontalAccuracy
         {
-            get
-            {
-                return horizontalAccuracy;
-            }
-
+            get => horizontalAccuracy;
             set
             {
-                if (value < 0.0)
+                if (!double.IsNaN(value) && value < 0.0)
+                {
                     throw new ArgumentOutOfRangeException("HorizontalAccuracy", "Argument must be non negative");
+                }
+
                 horizontalAccuracy = value == 0.0 ? double.NaN : value;
             }
         }
@@ -174,15 +171,10 @@ namespace Wikiled.Twitter.Discovery
         /// <exception cref="T:System.ArgumentOutOfRangeException">Latitude is set outside the valid range.</exception>
         public double Latitude
         {
-            get
-            {
-                return latitude;
-            }
-
+            get => latitude;
             set
             {
-                if (value > 90.0 ||
-                    value < -90.0)
+                if (!double.IsNaN(value) && (value > 90.0 || value < -90.0))
                 {
                     throw new ArgumentOutOfRangeException("Latitude", "Argument must be in range of -90 to 90");
                 }
@@ -200,15 +192,10 @@ namespace Wikiled.Twitter.Discovery
         /// <exception cref="T:System.ArgumentOutOfRangeException">Longitude is set outside the valid range.</exception>
         public double Longitude
         {
-            get
-            {
-                return longitude;
-            }
-
+            get => longitude;
             set
             {
-                if (value > 180.0 ||
-                    value < -180.0)
+                if (!double.IsNaN(value) && (value > 180.0 || value < -180.0))
                 {
                     throw new ArgumentOutOfRangeException("Longitude", "Argument must be in range of -180 to 180");
                 }
@@ -226,15 +213,14 @@ namespace Wikiled.Twitter.Discovery
         /// <exception cref="System.ArgumentOutOfRangeException">Speed is set outside the valid range.</exception>
         public double Speed
         {
-            get
-            {
-                return speed;
-            }
-
+            get => speed;
             set
             {
-                if (value < 0.0)
+                if (!double.IsNaN(value) && value < 0.0)
+                {
                     throw new ArgumentOutOfRangeException("speed", "Argument must be non negative");
+                }
+
                 speed = value;
             }
         }
@@ -248,15 +234,14 @@ namespace Wikiled.Twitter.Discovery
         /// <exception cref="T:System.ArgumentOutOfRangeException">VerticalAccuracy is set outside the valid range.</exception>
         public double VerticalAccuracy
         {
-            get
-            {
-                return verticalAccuracy;
-            }
-
+            get => verticalAccuracy;
             set
             {
-                if (value < 0.0)
+                if (!double.IsNaN(value) && value < 0.0)
+                {
                     throw new ArgumentOutOfRangeException("VerticalAccuracy", "Argument must be non negative");
+                }
+
                 verticalAccuracy = value == 0.0 ? double.NaN : value;
             }
         }
@@ -272,7 +257,9 @@ namespace Wikiled.Twitter.Discovery
         public static bool operator ==(GeoCoordinate left, GeoCoordinate right)
         {
             if (ReferenceEquals(left, null))
+            {
                 return ReferenceEquals(right, null);
+            }
 
             return left.Equals(right);
         }
@@ -341,12 +328,16 @@ namespace Wikiled.Twitter.Discovery
         public bool Equals(GeoCoordinate other)
         {
             if (ReferenceEquals(other, null))
+            {
                 return false;
+            }
 
             var num = Latitude;
 
             if (!num.Equals(other.Latitude))
+            {
                 return false;
+            }
 
             num = Longitude;
 

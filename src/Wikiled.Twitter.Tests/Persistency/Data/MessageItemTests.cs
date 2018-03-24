@@ -23,7 +23,7 @@ namespace Wikiled.Twitter.Tests.Persistency.Data
 
         private MessageItem CreateTweetData()
         {
-            return new MessageItem(new UserItem(new TweetUser()), new TweetData() { Longitude = 10, Latitude = 10 });
+            return new MessageItem(new UserItem(new TweetUser()), new TweetData { Longitude = 10, Latitude = 10 });
         }
     }
 }
