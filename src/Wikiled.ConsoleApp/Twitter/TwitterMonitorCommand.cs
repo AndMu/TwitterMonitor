@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using NLog;
 using Wikiled.Console.Arguments;
 using Wikiled.Twitter.Persistency;
@@ -26,7 +27,7 @@ namespace Wikiled.ConsoleApp.Twitter
 
         public string Keywords { get; set; }
 
-        public override void Execute()
+        public override Task Execute()
         {
             log.Info("Starting twitter monitoring...");
             string path = string.IsNullOrEmpty(Out) ? "out" : Out;
@@ -48,6 +49,8 @@ namespace Wikiled.ConsoleApp.Twitter
                 System.Console.ReadLine();
                 monitoringStream.Stop();
             }
-        }
+
+            return Task.CompletedTask;
+         }
     }
 }

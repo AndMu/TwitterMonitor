@@ -25,7 +25,7 @@ namespace Wikiled.Twitter.Security
             string json;
             if (File.Exists(file))
             {
-                log.Info("Found saved credentials. Loading...");
+                log.Info("Found saved applicationCredentials. Loading...");
                 json = File.ReadAllText(file);
                 return JsonConvert.DeserializeObject<TwitterCredentials>(json);
             }

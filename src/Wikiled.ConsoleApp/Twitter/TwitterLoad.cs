@@ -46,14 +46,14 @@ namespace Wikiled.ConsoleApp.Twitter
         [Required]
         public string TypeName { get; set; }
 
-        public override void Execute()
+        public override Task Execute()
         {
             try
             {
                 log.Info("Starting twitter loading...");
                 RedisLink link = new RedisLink(TypeName, new RedisMultiplexer(new RedisConfiguration("localhost", 6370)));
                 link.Open();
-                persistency = new RedisPersistency(link, new Microsoft.Extensions.Caching.Memory.MemoryCache(new MemoryCacheOptions()));
+                persistency = new RedisPersistency(link, new MemoryCache(new MemoryCacheOptions()));
                 var files = Directory.GetFiles(Out, "*.dat", SearchOption.AllDirectories);
                 Process(files).Wait();
                 link.Dispose();
@@ -62,6 +62,8 @@ namespace Wikiled.ConsoleApp.Twitter
             {
                 log.Error(ex);
             }
+
+            return Task.CompletedTask;
         }
 
         private async Task Deserialized(ProcessingChunk<TweetDTO> tweetDto)

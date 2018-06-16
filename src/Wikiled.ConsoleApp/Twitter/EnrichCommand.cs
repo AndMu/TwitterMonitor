@@ -7,6 +7,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using CsvHelper;
 using NLog;
 using Tweetinvi;
@@ -36,7 +37,7 @@ namespace Wikiled.ConsoleApp.Twitter
         [Required]
         public string Out { get; set; }
 
-        public override void Execute()
+        public override Task Execute()
         {
             log.Info("Starting twitter monitoring...");
             SetupWords();
@@ -85,6 +86,8 @@ namespace Wikiled.ConsoleApp.Twitter
                             }
                         });
             }
+
+            return Task.CompletedTask;
         }
 
         private bool CanInclude(string text, PositivityType type)
