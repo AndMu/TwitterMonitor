@@ -43,7 +43,7 @@ namespace Wikiled.ConsoleApp.Twitter
             }
 
             using (var streamSource = new TimingStreamSource(path, TimeSpan.FromHours(1)))
-            using (monitoringStream = new MonitoringStream(new PersistedAuthentication(new PinConsoleAuthentication())))
+            using (monitoringStream = new MonitoringStream(new PersistedAuthentication(new PinConsoleAuthentication(Credentials.Instance.IphoneTwitterCredentials))))
             {
                 var persistency = Compress ? new FilePersistency(streamSource) : (IPersistency)new FlatFileSerializer(streamSource);
                 var subscribtion = monitoringStream.MessagesReceiving

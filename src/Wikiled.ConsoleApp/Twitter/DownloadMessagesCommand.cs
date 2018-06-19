@@ -40,8 +40,8 @@ namespace Wikiled.ConsoleApp.Twitter
             MessagesDownloader downloader = new MessagesDownloader();
             RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
             MessageCleanup extractor = new MessageCleanup();
-            var auth = new PersistedAuthentication(new PinConsoleAuthentication());
-            var cred = auth.Authenticate(Credentials.Instance.IphoneTwitterCredentials);
+            var auth = new PersistedAuthentication(new PinConsoleAuthentication(Credentials.Instance.IphoneTwitterCredentials));
+            var cred = auth.Authenticate();
             var monitor = new PerformanceMonitor(downloadMessages.Length);
             using (var streamWriter = new StreamWriter(Out, false, new UTF8Encoding(false)))
             using (var csvDataTarget = new CsvWriter(streamWriter))

@@ -19,7 +19,7 @@ namespace Wikiled.Twitter.Security
             this.underlying = underlying;
         }
 
-        public ITwitterCredentials Authenticate(ITwitterCredentials auth)
+        public ITwitterCredentials Authenticate()
         {
             var file = "key.auth";
             string json;
@@ -30,7 +30,7 @@ namespace Wikiled.Twitter.Security
                 return JsonConvert.DeserializeObject<TwitterCredentials>(json);
             }
 
-            var credentials = underlying.Authenticate(auth);
+            var credentials = underlying.Authenticate();
             json = JsonConvert.SerializeObject((TwitterCredentials)credentials);
             string jsonFormatted = JToken.Parse(json).ToString(Formatting.Indented);
             File.WriteAllText(file, jsonFormatted);

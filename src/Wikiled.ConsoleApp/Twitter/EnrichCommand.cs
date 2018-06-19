@@ -45,8 +45,8 @@ namespace Wikiled.ConsoleApp.Twitter
             RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
             var cleanup = new MessageCleanup();
             var monitor = new PerformanceMonitor(100000);
-            var auth = new PersistedAuthentication(new PinConsoleAuthentication());
-            var cred = auth.Authenticate(Credentials.Instance.IphoneTwitterCredentials);
+            var auth = new PersistedAuthentication(new PinConsoleAuthentication(Credentials.Instance.IphoneTwitterCredentials));
+            var cred = auth.Authenticate();
             using (Observable.Interval(TimeSpan.FromSeconds(30)).Subscribe(item => log.Info(monitor)))
             using (var streamWriter = new StreamWriter(Out, true, new UTF8Encoding(false)))
             using (var csvDataTarget = new CsvWriter(streamWriter))

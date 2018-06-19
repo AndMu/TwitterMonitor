@@ -11,7 +11,14 @@ namespace Wikiled.Twitter.Security
     {
         private static Logger log = LogManager.GetCurrentClassLogger();
 
-        public ITwitterCredentials Authenticate(ITwitterCredentials applicationCredentials)
+        private readonly ITwitterCredentials applicationCredentials;
+
+        public PinConsoleAuthentication(ITwitterCredentials applicationCredentials)
+        {
+            this.applicationCredentials = applicationCredentials ?? throw new ArgumentNullException(nameof(applicationCredentials));
+        }
+
+        public ITwitterCredentials Authenticate()
         {
             // Go to the URL so that Twitter authenticates the user and gives him a PIN code
             var authenticationContext = AuthFlow.InitAuthentication(applicationCredentials);

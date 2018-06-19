@@ -12,7 +12,7 @@ namespace Wikiled.Twitter.Security
             this.credentials = credentials ?? throw new ArgumentNullException(nameof(credentials));
         }
 
-        public ITwitterCredentials Authenticate(ITwitterCredentials applicationCredentials)
+        public ITwitterCredentials Authenticate()
         {
             return credentials;
         }

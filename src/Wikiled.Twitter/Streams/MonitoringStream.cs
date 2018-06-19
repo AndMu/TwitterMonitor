@@ -59,11 +59,10 @@ namespace Wikiled.Twitter.Streams
             Guard.NotNull(() => keywords, keywords);
             log.Debug("Starting...");
             IsActive = true;
-            Auth.InitializeApplicationOnlyCredentials(Credentials.Instance.IphoneTwitterCredentials);
             ExceptionHandler.SwallowWebExceptions = false;
             ExceptionHandler.WebExceptionReceived += ExceptionHandlerOnWebExceptionReceived;
 
-            stream = Stream.CreateFilteredStream(auth.Authenticate(Credentials.Instance.IphoneTwitterCredentials));
+            stream = Stream.CreateFilteredStream(auth.Authenticate());
             if (LanguageFilters != null)
             {
                 foreach (var filter in LanguageFilters)
@@ -75,7 +74,7 @@ namespace Wikiled.Twitter.Streams
             stream.JsonObjectReceived += StreamOnJsonObjectReceived;
             foreach (var keyword in keywords)
             {
-                log.Debug("Add track {0}", keyword);
+                log.Info("Add track {0}", keyword);
                 stream.AddTrack(keyword);
             }
 
@@ -85,7 +84,7 @@ namespace Wikiled.Twitter.Streams
                 {
                     IUser user = User.GetUserFromScreenName(follow);
                     following.Add(user.Id);
-                    log.Debug("Add follow {0}", user);
+                    log.Info("Add follow {0}", user);
                     stream.AddFollow(user);
                 }
             }
