@@ -7,6 +7,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using CsvHelper;
 using NLog;
@@ -37,13 +38,12 @@ namespace Wikiled.ConsoleApp.Twitter
         [Required]
         public string Out { get; set; }
 
-        public override Task Execute()
+        protected override Task Execute(CancellationToken token)
         {
             log.Info("Starting twitter monitoring...");
             SetupWords();
             RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
             var cleanup = new MessageCleanup();
-            int reportStep = 5000;
             var monitor = new PerformanceMonitor(100000);
             var auth = new PersistedAuthentication(new PinConsoleAuthentication());
             var cred = auth.Authenticate(Credentials.Instance.IphoneTwitterCredentials);

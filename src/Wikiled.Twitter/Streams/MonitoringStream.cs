@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using NLog;
@@ -11,12 +12,11 @@ using Tweetinvi.Models;
 using Tweetinvi.Models.DTO;
 using Tweetinvi.Streaming;
 using Wikiled.Common.Arguments;
-using Wikiled.Twitter.Persistency;
 using Wikiled.Twitter.Security;
 
 namespace Wikiled.Twitter.Streams
 {
-    public class MonitoringStream : IDisposable
+    public class MonitoringStream : IMonitoringStream
     {
         private readonly IAuthentication auth;
 
@@ -24,21 +24,21 @@ namespace Wikiled.Twitter.Streams
 
         private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
-        private readonly IPersistency persistency;
-
         private int isActive;
 
         private IFilteredStream stream;
 
         private long totalReceived;
 
-        public MonitoringStream(IPersistency persistency, IAuthentication auth)
+        private Subject<ITweetDTO> messagesReceiving = new Subject<ITweetDTO>();
+
+        public MonitoringStream(IAuthentication auth)
         {
-            Guard.NotNull(() => persistency, persistency);
             Guard.NotNull(() => auth, auth);
-            this.persistency = persistency;
             this.auth = auth;
         }
+
+        public IObservable<ITweetDTO> MessagesReceiving => messagesReceiving;
 
         public bool IsActive { get => Interlocked.CompareExchange(ref isActive, 0, 0) == 1; private set => Interlocked.Exchange(ref isActive, value ? 1 : 0); }
 
@@ -49,14 +49,16 @@ namespace Wikiled.Twitter.Streams
         public void Dispose()
         {
             Stop();
+            messagesReceiving?.OnCompleted();
+            messagesReceiving?.Dispose();
+            messagesReceiving = null;
         }
 
-        public async void Start(string[] keywords, string[] follows)
+        public async Task Start(string[] keywords, string[] follows)
         {
             Guard.NotNull(() => keywords, keywords);
             log.Debug("Starting...");
             IsActive = true;
-
             Auth.InitializeApplicationOnlyCredentials(Credentials.Instance.IphoneTwitterCredentials);
             ExceptionHandler.SwallowWebExceptions = false;
             ExceptionHandler.WebExceptionReceived += ExceptionHandlerOnWebExceptionReceived;
@@ -132,7 +134,7 @@ namespace Wikiled.Twitter.Streams
                 var json = jsonObjectEventArgs.Json;
                 var jsonConvert = TweetinviContainer.Resolve<IJsonObjectConverter>();
                 var tweetDto = jsonConvert.DeserializeObject<ITweetDTO>(json);
-                Task.Run(() => persistency.Save(tweetDto));
+                messagesReceiving.OnNext(tweetDto);
                 if (tweetDto.CreatedBy != null)
                 {
                     log.Debug("Message received: [{0}-{3}] - [{1}-{2}]", tweetDto.CreatedBy.Location, tweetDto.CreatedBy.Name, tweetDto.CreatedBy.FollowersCount, tweetDto.Place);

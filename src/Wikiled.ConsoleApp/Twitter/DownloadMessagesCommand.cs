@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CsvHelper;
 using NLog;
@@ -31,7 +32,7 @@ namespace Wikiled.ConsoleApp.Twitter
 
         public bool Clean { get; set; }
 
-        public override Task Execute()
+        protected override Task Execute(CancellationToken token)
         {
             log.Info("Downloading message...");
             var downloadMessages = File.ReadLines(Ids).Select(long.Parse).ToArray();

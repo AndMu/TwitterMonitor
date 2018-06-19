@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NLog;
 using Wikiled.Console.Arguments;
@@ -27,7 +30,7 @@ namespace Wikiled.ConsoleApp.Twitter
 
         public string Keywords { get; set; }
 
-        public override Task Execute()
+        protected override async Task Execute(CancellationToken token)
         {
             log.Info("Starting twitter monitoring...");
             string path = string.IsNullOrEmpty(Out) ? "out" : Out;
@@ -40,17 +43,18 @@ namespace Wikiled.ConsoleApp.Twitter
             }
 
             using (var streamSource = new TimingStreamSource(path, TimeSpan.FromHours(1)))
-            using (monitoringStream = new MonitoringStream(
-                       Compress ? new FilePersistency(streamSource) : (IPersistency)new FlatFileSerializer(streamSource), 
-                       new PersistedAuthentication(new PinConsoleAuthentication())))
+            using (monitoringStream = new MonitoringStream(new PersistedAuthentication(new PinConsoleAuthentication())))
             {
-                monitoringStream.Start(keywords, follow);
+                var persistency = Compress ? new FilePersistency(streamSource) : (IPersistency)new FlatFileSerializer(streamSource);
+                var subscribtion = monitoringStream.MessagesReceiving
+                    .ObserveOn(TaskPoolScheduler.Default)
+                    .Subscribe(item => persistency.Save(item));
+                await monitoringStream.Start(keywords, follow).ConfigureAwait(false);
                 System.Console.WriteLine("To stop press enter...");
                 System.Console.ReadLine();
                 monitoringStream.Stop();
+                subscribtion.Dispose();
             }
-
-            return Task.CompletedTask;
          }
     }
 }

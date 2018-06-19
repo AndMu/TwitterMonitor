@@ -46,7 +46,7 @@ namespace Wikiled.ConsoleApp.Twitter
         [Required]
         public string TypeName { get; set; }
 
-        public override Task Execute()
+        protected override Task Execute(CancellationToken token)
         {
             try
             {

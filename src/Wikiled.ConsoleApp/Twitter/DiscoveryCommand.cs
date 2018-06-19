@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CsvHelper;
 using NLog;
@@ -22,7 +23,7 @@ namespace Wikiled.ConsoleApp.Twitter
         [Required]
         public string Out { get; set; }
 
-        public override Task Execute()
+        protected override Task Execute(CancellationToken token)
         {
             log.Info("Starting twitter monitoring...");
             string[] keywords = string.IsNullOrEmpty(Topics) ? new string[] { } : Topics.Split(',');
