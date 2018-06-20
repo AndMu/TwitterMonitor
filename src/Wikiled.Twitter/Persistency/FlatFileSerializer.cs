@@ -11,6 +11,8 @@ namespace Wikiled.Twitter.Persistency
 
         private readonly object syncRoot = new object();
 
+        private readonly MessageCleanup cleanup = new MessageCleanup();
+
         public FlatFileSerializer(IStreamSource streamSource)
         {
             Guard.NotNull(() => streamSource, streamSource);
@@ -19,7 +21,8 @@ namespace Wikiled.Twitter.Persistency
 
         public void Save(ITweetDTO dto)
         {
-            string text = $"{dto.CreatedAt}\t{dto.Id}\t{dto.CreatedBy.Id}\t{dto.Retweeted}\t{dto.Text}\r\n";
+            var textItem = cleanup.Cleanup(dto.Text);
+            string text = $"{dto.CreatedAt}\t{dto.Id}\t{dto.CreatedBy.Id}\t{dto.Retweeted}\t{textItem}\r\n";
             lock (syncRoot)
             {
                 var stream = streamSource.GetStream();

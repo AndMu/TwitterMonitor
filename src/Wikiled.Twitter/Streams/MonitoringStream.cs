@@ -76,6 +76,7 @@ namespace Wikiled.Twitter.Streams
             {
                 log.Info("Add track {0}", keyword);
                 stream.AddTrack(keyword);
+                
             }
 
             if (follows != null)
