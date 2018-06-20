@@ -15,5 +15,9 @@ namespace Wikiled.Twitter.Streams
         Task Start(string[] keywords, string[] follows);
 
         void Stop();
+
+        void AddTrack(string keyword);
+
+        void RemoveTrack(string keyword);
     }
 }

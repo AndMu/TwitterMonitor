@@ -54,6 +54,18 @@ namespace Wikiled.Twitter.Streams
             messagesReceiving = null;
         }
 
+        public void AddTrack(string keyword)
+        {
+            log.Info("Add track {0}", keyword);
+            stream.AddTrack(keyword);
+        }
+
+        public void RemoveTrack(string keyword)
+        {
+            log.Info("Remove track {0}", keyword);
+            stream.RemoveTrack(keyword);
+        }
+
         public async Task Start(string[] keywords, string[] follows)
         {
             Guard.NotNull(() => keywords, keywords);
@@ -74,9 +86,7 @@ namespace Wikiled.Twitter.Streams
             stream.JsonObjectReceived += StreamOnJsonObjectReceived;
             foreach (var keyword in keywords)
             {
-                log.Info("Add track {0}", keyword);
-                stream.AddTrack(keyword);
-                
+                AddTrack(keyword);
             }
 
             if (follows != null)
