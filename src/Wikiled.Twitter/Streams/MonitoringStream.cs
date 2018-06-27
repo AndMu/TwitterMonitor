@@ -79,6 +79,7 @@ namespace Wikiled.Twitter.Streams
             {
                 foreach (var filter in LanguageFilters)
                 {
+                    log.Info("Setting language filter: {0}", filter);
                     stream.AddTweetLanguageFilter(filter);
                 }
             }
@@ -93,10 +94,7 @@ namespace Wikiled.Twitter.Streams
             {
                 foreach (var follow in follows)
                 {
-                    IUser user = User.GetUserFromScreenName(follow);
-                    following.Add(user.Id);
-                    log.Info("Add follow {0}", user);
-                    stream.AddFollow(user);
+                    TrackUser(follow);
                 }
             }
 
@@ -123,6 +121,14 @@ namespace Wikiled.Twitter.Streams
                 }
             }
             while (IsActive);
+        }
+
+        public void TrackUser(string follow)
+        {
+            IUser user = User.GetUserFromScreenName(follow);
+            following.Add(user.Id);
+            log.Info("Add follow {0}", user);
+            stream.AddFollow(user);
         }
 
         public void Stop()

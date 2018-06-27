@@ -12,6 +12,8 @@ namespace Wikiled.Twitter.Streams
 
         long TotalReceived { get; }
 
+        void TrackUser(string follow);
+
         Task Start(string[] keywords, string[] follows);
 
         void Stop();
