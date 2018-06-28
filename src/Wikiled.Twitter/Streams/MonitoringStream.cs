@@ -111,7 +111,7 @@ namespace Wikiled.Twitter.Streams
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex);
+                    log.Error(ex, "Failed to start stream");
                 }
 
                 if (IsActive)
@@ -158,13 +158,13 @@ namespace Wikiled.Twitter.Streams
             }
             catch (Exception ex)
             {
-                log.Error(ex);
+                log.Error(ex, "Object received");
             }
         }
 
         private void ExceptionHandlerOnWebExceptionReceived(object sender, GenericEventArgs<ITwitterException> genericEventArgs)
         {
-            log.Error(genericEventArgs.Value.WebException);
+            log.Error(genericEventArgs.Value.WebException, "Web error");
         }
 
         private void StreamOnWarningFallingBehindDetected(object sender, WarningFallingBehindEventArgs warningFallingBehindEventArgs)
