@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using NLog;
-using Wikiled.Common.Arguments;
 using Wikiled.Common.Extensions;
 
 namespace Wikiled.Twitter.Persistency
@@ -24,10 +23,14 @@ namespace Wikiled.Twitter.Persistency
 
         public TimingStreamSource(string path, TimeSpan fileCreation)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new ArgumentException("Value cannot be null or empty.", nameof(path));
+            }
+
             log.Debug(path);
             this.path = path;
             this.fileCreation = fileCreation;
-            Guard.NotNullOrEmpty(() => path, path);
             path.EnsureDirectoryExistence();
         }
 

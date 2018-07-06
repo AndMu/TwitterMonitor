@@ -6,7 +6,6 @@ using NLog;
 using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Parameters;
-using Wikiled.Common.Arguments;
 using Wikiled.Common.Extensions;
 
 namespace Wikiled.Twitter.Discovery
@@ -23,8 +22,16 @@ namespace Wikiled.Twitter.Discovery
 
         public MessageDiscovery(string[] topics, params string[] enrichment)
         {
-            Guard.NotNull(() => topics, topics);
-            Guard.NotNull(() => enrichment, enrichment);
+            if (topics == null)
+            {
+                throw new ArgumentNullException(nameof(topics));
+            }
+
+            if (enrichment == null)
+            {
+                throw new ArgumentNullException(nameof(enrichment));
+            }
+
             this.topics = topics;
             this.enrichment = enrichment;
         }
@@ -37,7 +44,11 @@ namespace Wikiled.Twitter.Discovery
 
         public void AddProcessed(long[] ids)
         {
-            Guard.NotNull(() => ids, ids);
+            if (ids == null)
+            {
+                throw new ArgumentNullException(nameof(ids));
+            }
+
             foreach (var id in ids)
             {
                 processed.Add(id);

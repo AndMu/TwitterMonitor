@@ -1,6 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
-using Wikiled.Common.Arguments;
 
 namespace Wikiled.Twitter.Persistency.Data
 {
@@ -10,8 +10,7 @@ namespace Wikiled.Twitter.Persistency.Data
 
         public UserItem(TweetUser user)
         {
-            Guard.NotNull(() => user, user);
-            User = user;
+            User = user ?? throw new ArgumentNullException(nameof(user));
         }
 
         public double AverageDistance

@@ -1,9 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NLog;
 using Tweetinvi.Models;
-using Wikiled.Common.Arguments;
 
 namespace Wikiled.Twitter.Security
 {
@@ -15,8 +15,7 @@ namespace Wikiled.Twitter.Security
 
         public PersistedAuthentication(IAuthentication underlying)
         {
-            Guard.NotNull(() => underlying, underlying);
-            this.underlying = underlying;
+            this.underlying = underlying ?? throw new ArgumentNullException(nameof(underlying));
         }
 
         public ITwitterCredentials Authenticate()

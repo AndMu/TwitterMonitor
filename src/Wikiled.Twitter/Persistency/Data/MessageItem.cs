@@ -1,6 +1,4 @@
 ﻿using System;
-using Wikiled.Common.Arguments;
-using Wikiled.Twitter.Discovery;
 
 namespace Wikiled.Twitter.Persistency.Data
 {
@@ -8,10 +6,8 @@ namespace Wikiled.Twitter.Persistency.Data
     {
         public MessageItem(UserItem user, TweetData data)
         {
-            Guard.NotNull(() => user, user);
-            Guard.NotNull(() => data, data);
-            User = user;
-            Data = data;
+            User = user ?? throw new ArgumentNullException(nameof(user));
+            Data = data ?? throw new ArgumentNullException(nameof(data));
             
             Coordinates = new GeoCoordinate(data.Latitude, data.Longitude);
             DateTime = new DateTime(data.Tick);
@@ -29,7 +25,11 @@ namespace Wikiled.Twitter.Persistency.Data
 
         public double CalculateDistance(MessageItem data)
         {
-            Guard.NotNull(() => data, data);
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
             return data.Coordinates.GetDistanceTo(Coordinates);
         }
     }

@@ -1,5 +1,5 @@
-﻿using System.IO;
-using Wikiled.Common.Arguments;
+﻿using System;
+using System.IO;
 
 namespace Wikiled.Twitter.Persistency
 {
@@ -9,8 +9,7 @@ namespace Wikiled.Twitter.Persistency
 
         public BasicStreamSource(Stream stream)
         {
-            Guard.NotNull(() => stream, stream);
-            this.stream = stream;
+            this.stream = stream ?? throw new ArgumentNullException(nameof(stream));
         }
 
         public void Dispose()

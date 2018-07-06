@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using Tweetinvi.Models;
-using Wikiled.Common.Arguments;
 using Wikiled.Redis.Indexing;
 using Wikiled.Redis.Keys;
 using Wikiled.Redis.Logic;
@@ -45,9 +44,12 @@ namespace Wikiled.Twitter.Persistency
 
         public RedisPersistency(IRedisLink redis, IMemoryCache cache)
         {
-            Guard.NotNull(() => redis, redis);
-            Guard.NotNull(() => cache, cache);
-            this.cache = cache;
+            if (redis == null)
+            {
+                throw new ArgumentNullException(nameof(redis));
+            }
+
+            this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
             redis.RegisterHashType<TweetData>().IsSingleInstance = true;
             redis.RegisterHashType<TweetUser>().IsSingleInstance = true;
             this.redis = redis;
@@ -113,8 +115,7 @@ namespace Wikiled.Twitter.Persistency
         {
             var key = GetTweetKey(id);
             string idText = id.ToString();
-            TweetData message;
-            if (cache.TryGetValue(idText, out message))
+            if (cache.TryGetValue(idText, out TweetData message))
             {
                 return message;
             }
@@ -131,9 +132,8 @@ namespace Wikiled.Twitter.Persistency
 
         public async Task<UserItem> LoadUser(long id)
         {
-            UserItem user;
             string idText = $"User{id}";
-            if (cache.TryGetValue(idText, out user))
+            if (cache.TryGetValue(idText, out UserItem user))
             {
                 return user;
             }
@@ -152,10 +152,13 @@ namespace Wikiled.Twitter.Persistency
 
         public async Task Save(ITweet tweet)
         {
-            Guard.NotNull(() => tweet, tweet);
-            TweetData data;
+            if (tweet == null)
+            {
+                throw new ArgumentNullException(nameof(tweet));
+            }
+
             var idText = tweet.Id.ToString();
-            if (cache.TryGetValue(idText, out data))
+            if (cache.TryGetValue(idText, out TweetData data))
             {
                 return;
             }
@@ -260,7 +263,11 @@ namespace Wikiled.Twitter.Persistency
 
         public async Task SaveUser(TweetUser user)
         {
-            Guard.NotNull(() => user, user);
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
             var key = GetUserKey(user.Id);
 
             var contains = await redis.Client.ContainsRecord<TweetUser>(key).ConfigureAwait(false);
@@ -280,10 +287,13 @@ namespace Wikiled.Twitter.Persistency
 
         public async Task SaveUser(IUser user)
         {
-            Guard.NotNull(() => user, user);
-            TweetUser data;
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
             var idText = user.Id.ToString();
-            if (cache.TryGetValue(idText, out data))
+            if (cache.TryGetValue(idText, out TweetUser data))
             {
                 return;
             }
@@ -368,9 +378,8 @@ namespace Wikiled.Twitter.Persistency
 
         private void InvalidateUser(long id)
         {
-            UserItem user;
             string idText = $"User{id}";
-            if (cache.TryGetValue(idText, out user))
+            if (cache.TryGetValue(idText, out UserItem user))
             {
                 cache.Remove(idText);
                 foreach (var userMessage in user.Messages)

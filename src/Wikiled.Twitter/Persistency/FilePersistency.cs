@@ -3,10 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using NLog;
+using PluralizationService.Core;
 using ProtoBuf;
 using Tweetinvi;
 using Tweetinvi.Models.DTO;
-using Wikiled.Common.Arguments;
 using Wikiled.Common.Helpers;
 using Wikiled.Twitter.Persistency.Data;
 
@@ -22,8 +22,7 @@ namespace Wikiled.Twitter.Persistency
 
         public FilePersistency(IStreamSource streamSource)
         {
-            Guard.NotNull(() => streamSource, streamSource);
-            this.streamSource = streamSource;
+            this.streamSource = streamSource ?? throw new ArgumentNullException(nameof(streamSource));
         }
 
         public static string[] Load(string fileName)
@@ -37,7 +36,11 @@ namespace Wikiled.Twitter.Persistency
 
         public void Save(ITweetDTO tweet)
         {
-            Guard.NotNull(() => tweet, tweet);
+            if (tweet == null)
+            {
+                throw new ArgumentNullException(nameof(tweet));
+            }
+
             try
             {
                 var data = new RawTweetData();

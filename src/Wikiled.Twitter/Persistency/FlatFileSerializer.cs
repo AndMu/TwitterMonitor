@@ -1,6 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using Tweetinvi.Models.DTO;
-using Wikiled.Common.Arguments;
 using Wikiled.Text.Analysis.Twitter;
 
 namespace Wikiled.Twitter.Persistency
@@ -15,8 +15,7 @@ namespace Wikiled.Twitter.Persistency
 
         public FlatFileSerializer(IStreamSource streamSource)
         {
-            Guard.NotNull(() => streamSource, streamSource);
-            this.streamSource = streamSource;
+            this.streamSource = streamSource ?? throw new ArgumentNullException(nameof(streamSource));
         }
 
         public void Save(ITweetDTO dto)

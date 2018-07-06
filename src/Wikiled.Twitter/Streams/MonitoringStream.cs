@@ -11,7 +11,6 @@ using Tweetinvi.Events;
 using Tweetinvi.Models;
 using Tweetinvi.Models.DTO;
 using Tweetinvi.Streaming;
-using Wikiled.Common.Arguments;
 using Wikiled.Twitter.Security;
 
 namespace Wikiled.Twitter.Streams
@@ -34,8 +33,7 @@ namespace Wikiled.Twitter.Streams
 
         public MonitoringStream(IAuthentication auth)
         {
-            Guard.NotNull(() => auth, auth);
-            this.auth = auth;
+            this.auth = auth ?? throw new ArgumentNullException(nameof(auth));
         }
 
         public IObservable<ITweetDTO> MessagesReceiving => messagesReceiving;
@@ -68,7 +66,11 @@ namespace Wikiled.Twitter.Streams
 
         public async Task Start(string[] keywords, string[] follows)
         {
-            Guard.NotNull(() => keywords, keywords);
+            if (keywords == null)
+            {
+                throw new ArgumentNullException(nameof(keywords));
+            }
+
             log.Debug("Starting...");
             IsActive = true;
             ExceptionHandler.SwallowWebExceptions = false;
