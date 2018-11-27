@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging.Abstractions;
 using NLog;
 using NUnit.Framework;
 using Tweetinvi;
@@ -38,14 +39,13 @@ namespace Wikiled.Twitter.Tests.Persistency.Redis
             redis = new RedisInside.Redis(i => i.Port(6666).LogTo(message => log.Debug(message)));
             var config = new RedisConfiguration("localhost", 6666);
             var jsonConvert = TweetinviContainer.Resolve<IJsonObjectConverter>();
-            var jsons =
-                FilePersistency.Load(Path.Combine(TestContext.CurrentContext.TestDirectory, @"data\data_20160311_1115.dat"));
+            var jsons = new FileLoader(new NullLogger<FileLoader>()).Load(Path.Combine(TestContext.CurrentContext.TestDirectory, @"data\data_20160311_1115.dat"));
             var tweetDto = jsonConvert.DeserializeObject<TweetDTO>(jsons[0]);
             tweet = Tweet.GenerateTweetFromDTO(tweetDto);
             link = new RedisLink("Trump", new RedisMultiplexer(config));
             link.Open();
             cache = new MemoryCache(new MemoryCacheOptions());
-            persistency = new RedisPersistency(link, cache);
+            persistency = new RedisPersistency(new NullLogger<RedisPersistency>(),  link, cache);
             persistency.ResolveRetweets = true;
         }
 

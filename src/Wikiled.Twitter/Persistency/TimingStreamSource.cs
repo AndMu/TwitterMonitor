@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using NLog;
 using Wikiled.Common.Extensions;
 
@@ -11,7 +12,7 @@ namespace Wikiled.Twitter.Persistency
     {
         private readonly TimeSpan fileCreation;
 
-        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+        private readonly ILogger<TimingStreamSource> log;
 
         private readonly string path;
 
@@ -21,16 +22,17 @@ namespace Wikiled.Twitter.Persistency
 
         private FileStream stream;
 
-        public TimingStreamSource(string path, TimeSpan fileCreation)
+        public TimingStreamSource(ILogger<TimingStreamSource> log, string path, TimeSpan fileCreation)
         {
             if (string.IsNullOrEmpty(path))
             {
                 throw new ArgumentException("Value cannot be null or empty.", nameof(path));
             }
 
-            log.Debug(path);
+            log.LogDebug(path);
             this.path = path;
             this.fileCreation = fileCreation;
+            this.log = log;
             path.EnsureDirectoryExistence();
         }
 
@@ -38,7 +40,7 @@ namespace Wikiled.Twitter.Persistency
 
         public void Dispose()
         {
-            log.Debug("Dispose");
+            log.LogDebug("Dispose");
             IsDisposed = true;
             stream?.Dispose();
         }
@@ -61,7 +63,7 @@ namespace Wikiled.Twitter.Persistency
                 }
 
                 var fileName = Path.Combine(path, $"data_{DateTime.UtcNow:yyyyMMdd_HHmm}.dat");
-                log.Info("Creating: {0}...", fileName);
+                log.LogInformation("Creating: {0}...", fileName);
                 stream = new FileStream(fileName, FileMode.Create);
             }
 

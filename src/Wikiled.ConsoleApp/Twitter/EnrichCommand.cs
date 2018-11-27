@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using CsvHelper;
+using Microsoft.Extensions.Logging;
 using NLog;
 using Tweetinvi;
 using Wikiled.Arff.Persistence;
@@ -26,7 +27,7 @@ namespace Wikiled.ConsoleApp.Twitter
     /// </summary>
     public class EnrichCommand : Command
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private ILogger<EnrichCommand> log = Program.LoggingFactory.CreateLogger<EnrichCommand>();
 
         private string[] positive;
 
@@ -40,14 +41,18 @@ namespace Wikiled.ConsoleApp.Twitter
 
         protected override Task Execute(CancellationToken token)
         {
-            log.Info("Starting twitter monitoring...");
+            log.LogInformation("Starting twitter monitoring...");
             SetupWords();
             RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
             var cleanup = new MessageCleanup();
             var monitor = new PerformanceMonitor(100000);
-            var auth = new PersistedAuthentication(new PinConsoleAuthentication(Credentials.Instance.IphoneTwitterCredentials));
+            var auth = new PersistedAuthentication(
+                Program.LoggingFactory.CreateLogger<PersistedAuthentication>(),
+                new PinConsoleAuthentication(
+                    Program.LoggingFactory.CreateLogger<PinConsoleAuthentication>(),
+                    Credentials.Instance.IphoneTwitterCredentials));
             var cred = auth.Authenticate();
-            using (Observable.Interval(TimeSpan.FromSeconds(30)).Subscribe(item => log.Info(monitor)))
+            using (Observable.Interval(TimeSpan.FromSeconds(30)).Subscribe(item => log.LogInformation(monitor.ToString())))
             using (var streamWriter = new StreamWriter(Out, true, new UTF8Encoding(false)))
             using (var csvDataTarget = new CsvWriter(streamWriter))
             {
@@ -116,8 +121,8 @@ namespace Wikiled.ConsoleApp.Twitter
                 throw new NotSupportedException("Invalid selection");
             }
 
-            yield return new SentimentDiscovery(PositivityType.Negative, new MessageDiscovery(keywords, negative));
-            yield return new SentimentDiscovery(PositivityType.Positive, new MessageDiscovery(keywords, positive));
+            yield return new SentimentDiscovery(PositivityType.Negative, new MessageDiscovery(Program.LoggingFactory.CreateLogger<MessageDiscovery>(), keywords, negative));
+            yield return new SentimentDiscovery(PositivityType.Positive, new MessageDiscovery(Program.LoggingFactory.CreateLogger<MessageDiscovery>(), keywords, positive));
         }
 
         private void SetupWords()

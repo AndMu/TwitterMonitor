@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NLog;
 using Wikiled.Console.Arguments;
 using Wikiled.Twitter.Persistency;
 using Wikiled.Twitter.Security;
@@ -16,7 +16,7 @@ namespace Wikiled.ConsoleApp.Twitter
     /// </summary>
     public class TwitterMonitorCommand : Command
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private ILogger<TwitterMonitorCommand> log = Program.LoggingFactory.CreateLogger<TwitterMonitorCommand>();
 
         private MonitoringStream monitoringStream;
 
@@ -32,7 +32,7 @@ namespace Wikiled.ConsoleApp.Twitter
 
         protected override async Task Execute(CancellationToken token)
         {
-            log.Info("Starting twitter monitoring...");
+            log.LogInformation("Starting twitter monitoring...");
             string path = string.IsNullOrEmpty(Out) ? "out" : Out;
             string[] keywords = string.IsNullOrEmpty(Keywords) ? new string[] { } : Keywords.Split(',');
             string[] follow = string.IsNullOrEmpty(People) ? new string[] { } : People.Split(',');
@@ -42,11 +42,16 @@ namespace Wikiled.ConsoleApp.Twitter
                 throw new NotSupportedException("Invalid selection");
             }
 
-            using (var streamSource = new TimingStreamSource(path, TimeSpan.FromHours(1)))
-            using (monitoringStream = new MonitoringStream(new PersistedAuthentication(new PinConsoleAuthentication(Credentials.Instance.IphoneTwitterCredentials))))
+            using (TimingStreamSource streamSource =
+                new TimingStreamSource(Program.LoggingFactory.CreateLogger<TimingStreamSource>(),
+                                       path,
+                                       TimeSpan.FromHours(1)))
+            using (monitoringStream = new MonitoringStream(Program.LoggingFactory.CreateLogger<MonitoringStream>(),
+                                                           new PersistedAuthentication(Program.LoggingFactory.CreateLogger<PersistedAuthentication>(),
+                                                                                       new PinConsoleAuthentication(Credentials.Instance.IphoneTwitterCredentials))))
             {
-                var persistency = Compress ? new FilePersistency(streamSource) : (IPersistency)new FlatFileSerializer(streamSource);
-                var subscribtion = monitoringStream.MessagesReceiving
+                var persistency = Compress ? new FilePersistency(streamSource) : new FlatFileSerializer(streamSource);
+                IDisposable subscribtion = monitoringStream.MessagesReceiving
                     .ObserveOn(TaskPoolScheduler.Default)
                     .Subscribe(item => persistency.Save(item));
                 await monitoringStream.Start(keywords, follow).ConfigureAwait(false);
@@ -55,6 +60,6 @@ namespace Wikiled.ConsoleApp.Twitter
                 monitoringStream.Stop();
                 subscribtion.Dispose();
             }
-         }
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NLog;
 using Tweetinvi;
 using Tweetinvi.Core.Exceptions;
@@ -17,11 +18,11 @@ namespace Wikiled.Twitter.Streams
 {
     public class MonitoringStream : IMonitoringStream
     {
+        private readonly ILogger<MonitoringStream> log;
+
         private readonly IAuthentication auth;
 
         private readonly HashSet<long> following = new HashSet<long>();
-
-        private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         private int isActive;
 
@@ -31,9 +32,10 @@ namespace Wikiled.Twitter.Streams
 
         private Subject<ITweetDTO> messagesReceiving = new Subject<ITweetDTO>();
 
-        public MonitoringStream(IAuthentication auth)
+        public MonitoringStream(ILogger<MonitoringStream> log, IAuthentication auth)
         {
             this.auth = auth ?? throw new ArgumentNullException(nameof(auth));
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
         public IObservable<ITweetDTO> MessagesReceiving => messagesReceiving;
@@ -54,13 +56,13 @@ namespace Wikiled.Twitter.Streams
 
         public void AddTrack(string keyword)
         {
-            log.Info("Add track {0}", keyword);
+            log.LogInformation("Add track {0}", keyword);
             stream.AddTrack(keyword);
         }
 
         public void RemoveTrack(string keyword)
         {
-            log.Info("Remove track {0}", keyword);
+            log.LogInformation("Remove track {0}", keyword);
             stream.RemoveTrack(keyword);
         }
 
@@ -71,7 +73,7 @@ namespace Wikiled.Twitter.Streams
                 throw new ArgumentNullException(nameof(keywords));
             }
 
-            log.Debug("Starting...");
+            log.LogDebug("Starting...");
             IsActive = true;
             ExceptionHandler.SwallowWebExceptions = false;
             ExceptionHandler.WebExceptionReceived += ExceptionHandlerOnWebExceptionReceived;
@@ -81,7 +83,7 @@ namespace Wikiled.Twitter.Streams
             {
                 foreach (var filter in LanguageFilters)
                 {
-                    log.Info("Setting language filter: {0}", filter);
+                    log.LogInformation("Setting language filter: {0}", filter);
                     stream.AddTweetLanguageFilter(filter);
                 }
             }
@@ -113,12 +115,12 @@ namespace Wikiled.Twitter.Streams
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex, "Failed to start stream");
+                    log.LogError(ex, "Failed to start stream");
                 }
 
                 if (IsActive)
                 {
-                    log.Info("Waiting to retry");
+                    log.LogInformation("Waiting to retry");
                     await Task.Delay(500).ConfigureAwait(false);
                 }
             }
@@ -129,7 +131,7 @@ namespace Wikiled.Twitter.Streams
         {
             IUser user = User.GetUserFromScreenName(follow);
             following.Add(user.Id);
-            log.Info("Add follow {0}", user);
+            log.LogInformation("Add follow {0}", user);
             stream.AddFollow(user);
         }
 
@@ -155,40 +157,40 @@ namespace Wikiled.Twitter.Streams
                 messagesReceiving.OnNext(tweetDto);
                 if (tweetDto.CreatedBy != null)
                 {
-                    log.Debug("Message received: [{0}-{3}] - [{1}-{2}]", tweetDto.CreatedBy.Location, tweetDto.CreatedBy.Name, tweetDto.CreatedBy.FollowersCount, tweetDto.Place);
+                    log.LogDebug("Message received: [{0}-{3}] - [{1}-{2}]", tweetDto.CreatedBy.Location, tweetDto.CreatedBy.Name, tweetDto.CreatedBy.FollowersCount, tweetDto.Place);
                 }
             }
             catch (Exception ex)
             {
-                log.Error(ex, "Object received");
+                log.LogError(ex, "Object received");
             }
         }
 
         private void ExceptionHandlerOnWebExceptionReceived(object sender, GenericEventArgs<ITwitterException> genericEventArgs)
         {
-            log.Error(genericEventArgs.Value.WebException, "Web error");
+            log.LogError(genericEventArgs.Value.WebException, "Web error");
         }
 
         private void StreamOnWarningFallingBehindDetected(object sender, WarningFallingBehindEventArgs warningFallingBehindEventArgs)
         {
             string message = $"Falling behind {warningFallingBehindEventArgs.WarningMessage}...";
-            log.Warn(message);
+            log.LogWarning(message);
         }
 
         private void StreamOnStreamStopped(object sender, StreamExceptionEventArgs streamExceptionEventArgs)
         {
-            log.Info("Stream Stopped...");
+            log.LogInformation("Stream Stopped...");
         }
 
         private void StreamOnStreamStarted(object sender, EventArgs eventArgs)
         {
-            log.Info("Stream started...");
+            log.LogInformation("Stream started...");
         }
 
         private void StreamOnLimitReached(object sender, LimitReachedEventArgs limitReachedEventArgs)
         {
             string message = $"Limit reached: {limitReachedEventArgs.NumberOfTweetsNotReceived}";
-            log.Info(message);
+            log.LogInformation(message);
         }
     }
 }

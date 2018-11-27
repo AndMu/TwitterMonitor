@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
-using NLog;
+using Microsoft.Extensions.Logging;
 using Tweetinvi.Models;
 using Wikiled.Redis.Indexing;
 using Wikiled.Redis.Keys;
@@ -16,7 +16,7 @@ namespace Wikiled.Twitter.Persistency
 {
     public class RedisPersistency : IRepository
     {
-        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+        private readonly ILogger<RedisPersistency> log;
 
         private const string AllTweets = "All";
 
@@ -42,7 +42,7 @@ namespace Wikiled.Twitter.Persistency
 
         private readonly IRedisLink redis;
 
-        public RedisPersistency(IRedisLink redis, IMemoryCache cache)
+        public RedisPersistency(ILogger<RedisPersistency> log, IRedisLink redis, IMemoryCache cache)
         {
             if (redis == null)
             {
@@ -50,6 +50,7 @@ namespace Wikiled.Twitter.Persistency
             }
 
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
             redis.RegisterHashType<TweetData>().IsSingleInstance = true;
             redis.RegisterHashType<TweetUser>().IsSingleInstance = true;
             this.redis = redis;
@@ -273,7 +274,7 @@ namespace Wikiled.Twitter.Persistency
             var contains = await redis.Client.ContainsRecord<TweetUser>(key).ConfigureAwait(false);
             if (!contains)
             {
-                log.Debug("User doesn't exist - creating new");
+                log.LogDebug("User doesn't exist - creating new");
                 key.AddIndex(new IndexKey(this, AllUserTag, false));
             }
             else

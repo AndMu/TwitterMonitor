@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 using Tweetinvi.Models.DTO;
@@ -22,7 +23,7 @@ namespace Wikiled.Twitter.Tests.Persistency
         {
             stream = new Mock<IStreamSource>();
             tweet = new Mock<ITweetDTO>();
-            instance = new FilePersistency(stream.Object);
+            instance = new FilePersistency(new NullLogger<FilePersistency>(), stream.Object);
         }
 
         [Test]
@@ -35,7 +36,7 @@ namespace Wikiled.Twitter.Tests.Persistency
         [Test]
         public void Load()
         {
-            var result = FilePersistency.Load(Path.Combine(TestContext.CurrentContext.TestDirectory, @"data\data_20160311_1115.dat"));
+            var result = new FileLoader(new NullLogger<FileLoader>()).Load(Path.Combine(TestContext.CurrentContext.TestDirectory, @"data\data_20160311_1115.dat"));
             Assert.AreEqual(7725, result.Length);
         }
     }

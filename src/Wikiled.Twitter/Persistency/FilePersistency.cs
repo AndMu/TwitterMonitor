@@ -1,9 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using System.Text;
-using NLog;
-using PluralizationService.Core;
+using Microsoft.Extensions.Logging;
 using ProtoBuf;
 using Tweetinvi;
 using Tweetinvi.Models.DTO;
@@ -14,24 +11,16 @@ namespace Wikiled.Twitter.Persistency
 {
     public class FilePersistency : IPersistency
     {
-        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+        private readonly ILogger<FilePersistency> log;
 
         private readonly IStreamSource streamSource;
 
         private readonly object syncRoot = new object();
 
-        public FilePersistency(IStreamSource streamSource)
+        public FilePersistency(ILogger<FilePersistency> log, IStreamSource streamSource)
         {
             this.streamSource = streamSource ?? throw new ArgumentNullException(nameof(streamSource));
-        }
-
-        public static string[] Load(string fileName)
-        {
-            log.Debug("Load [{0}]", fileName);
-            using (var stream = File.OpenRead(fileName))
-            {
-                return Serializer.DeserializeItems<RawTweetData>(stream, PrefixStyle.Base128, 1).Select(item => Encoding.UTF8.GetString(item.Data.UnZip())).ToArray();
-            }
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
         public void Save(ITweetDTO tweet)
@@ -54,7 +43,7 @@ namespace Wikiled.Twitter.Persistency
             }
             catch(Exception ex)
             {
-                log.Error(ex);
+                log.LogError(ex, "Error");
             }
         }
     }

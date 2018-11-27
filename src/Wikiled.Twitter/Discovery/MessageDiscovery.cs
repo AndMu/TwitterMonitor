@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using MoreLinq;
-using NLog;
 using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Parameters;
@@ -12,7 +12,7 @@ namespace Wikiled.Twitter.Discovery
 {
     public class MessageDiscovery : IMessageDiscovery
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private readonly ILogger<MessageDiscovery> log;
 
         private readonly string[] topics;
 
@@ -20,20 +20,11 @@ namespace Wikiled.Twitter.Discovery
 
         private readonly HashSet<long> processed = new HashSet<long>();
 
-        public MessageDiscovery(string[] topics, params string[] enrichment)
+        public MessageDiscovery(ILogger<MessageDiscovery> log, string[] topics, params string[] enrichment)
         {
-            if (topics == null)
-            {
-                throw new ArgumentNullException(nameof(topics));
-            }
-
-            if (enrichment == null)
-            {
-                throw new ArgumentNullException(nameof(enrichment));
-            }
-
-            this.topics = topics;
-            this.enrichment = enrichment;
+            this.topics = topics ?? throw new ArgumentNullException(nameof(topics));
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
+            this.enrichment = enrichment ?? throw new ArgumentNullException(nameof(enrichment));
         }
 
         public LanguageFilter Language { get; } = LanguageFilter.English;
@@ -92,11 +83,11 @@ namespace Wikiled.Twitter.Discovery
                     var tweets = Search.SearchTweets(searchParameter) ?? Search.SearchTweets(searchParameter);
                     if (tweets == null)
                     {
-                        log.Debug("Not Found for [{0}]", searchParameter.SearchQuery);
+                        log.LogDebug("Not Found for [{0}]", searchParameter.SearchQuery);
                         yield break;
                     }
 
-                    log.Debug("Retrieved for [{0}]", searchParameter.SearchQuery);
+                    log.LogDebug("Retrieved for [{0}]", searchParameter.SearchQuery);
                     foreach (var tweet in tweets)
                     {
                         total++;

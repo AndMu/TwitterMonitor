@@ -1,11 +1,11 @@
-﻿using System;
+﻿using CsvHelper;
+using Microsoft.Extensions.Logging;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CsvHelper;
-using NLog;
 using Tweetinvi;
 using Wikiled.Console.Arguments;
 using Wikiled.Twitter.Discovery;
@@ -15,7 +15,7 @@ namespace Wikiled.ConsoleApp.Twitter
 {
     public class DiscoveryCommand : Command
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private ILogger<DiscoveryCommand> log = Program.LoggingFactory.CreateLogger<DiscoveryCommand>();
 
         [Required]
         public string Topics { get; set; }
@@ -25,7 +25,7 @@ namespace Wikiled.ConsoleApp.Twitter
 
         protected override Task Execute(CancellationToken token)
         {
-            log.Info("Starting twitter monitoring...");
+            log.LogInformation("Starting twitter monitoring...");
             string[] keywords = string.IsNullOrEmpty(Topics) ? new string[] { } : Topics.Split(',');
             if (Topics.Length == 0)
             {
@@ -33,18 +33,22 @@ namespace Wikiled.ConsoleApp.Twitter
             }
 
             RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
-            MessageDiscovery discovery = new MessageDiscovery(keywords);
+            MessageDiscovery discovery = new MessageDiscovery(Program.LoggingFactory.CreateLogger<MessageDiscovery>(), keywords);
 
-            var auth = new PersistedAuthentication(new PinConsoleAuthentication(Credentials.Instance.IphoneTwitterCredentials));
-            var cred = auth.Authenticate();
-            using (var streamWriter = new StreamWriter(Out, true, new UTF8Encoding(false)))
-            using (var csvDataTarget = new CsvWriter(streamWriter))
+            PersistedAuthentication auth = new PersistedAuthentication(
+                Program.LoggingFactory.CreateLogger<PersistedAuthentication>(),
+                new PinConsoleAuthentication(
+                    Program.LoggingFactory.CreateLogger<PinConsoleAuthentication>(),
+                    Credentials.Instance.IphoneTwitterCredentials));
+            Tweetinvi.Models.ITwitterCredentials cred = auth.Authenticate();
+            using (StreamWriter streamWriter = new StreamWriter(Out, true, new UTF8Encoding(false)))
+            using (CsvWriter csvDataTarget = new CsvWriter(streamWriter))
             {
                 Auth.ExecuteOperationWithCredentials(
                     cred,
                     () =>
                     {
-                        foreach(var item in discovery.Process())
+                        foreach ((Tweetinvi.Models.ITweet Message, string Topic) item in discovery.Process())
                         {
                             csvDataTarget.WriteField(item.Message.Id);
                             csvDataTarget.WriteField(item.Message.Text);

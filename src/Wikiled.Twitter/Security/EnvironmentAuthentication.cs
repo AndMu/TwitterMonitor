@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.Logging;
 using NLog;
 using Tweetinvi.Models;
 using Wikiled.Common.Utilities.Config;
@@ -7,13 +8,14 @@ namespace Wikiled.Twitter.Security
 {
     public class EnvironmentAuthentication : IAuthentication
     {
-        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+        private readonly ILogger<EnvironmentAuthentication> log;
 
         private readonly IApplicationConfiguration config;
 
-        public EnvironmentAuthentication(IApplicationConfiguration config)
+        public EnvironmentAuthentication(ILogger<EnvironmentAuthentication> log, IApplicationConfiguration config)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
         public ITwitterCredentials Authenticate()
@@ -28,7 +30,7 @@ namespace Wikiled.Twitter.Security
                 string.IsNullOrEmpty(credentials.ConsumerKey) ||
                 string.IsNullOrEmpty(credentials.ConsumerSecret))
             {
-                log.Error("Failed to read credentials. [{0}] [{1}] [{2}] [{3}]",
+                log.LogError("Failed to read credentials. [{0}] [{1}] [{2}] [{3}]",
                     credentials.AccessTokenSecret,
                     credentials.AccessToken,
                     credentials.ConsumerKey,

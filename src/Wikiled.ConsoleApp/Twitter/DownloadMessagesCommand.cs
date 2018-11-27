@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CsvHelper;
-using NLog;
+using Microsoft.Extensions.Logging;
 using Tweetinvi;
 using Wikiled.Common.Logging;
 using Wikiled.Console.Arguments;
@@ -22,7 +22,7 @@ namespace Wikiled.ConsoleApp.Twitter
     /// </summary>
     public class DownloadMessagesCommand : Command
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private ILogger<DownloadMessagesCommand> log = Program.LoggingFactory.CreateLogger<DownloadMessagesCommand>();
 
         [Required]
         public string Ids { get; set; }
@@ -34,13 +34,17 @@ namespace Wikiled.ConsoleApp.Twitter
 
         protected override Task Execute(CancellationToken token)
         {
-            log.Info("Downloading message...");
+            log.LogInformation("Downloading message...");
             var downloadMessages = File.ReadLines(Ids).Select(long.Parse).ToArray();
-            log.Info("Total messages to download: {0}", downloadMessages.Length);
-            MessagesDownloader downloader = new MessagesDownloader();
+            log.LogInformation("Total messages to download: {0}", downloadMessages.Length);
+            MessagesDownloader downloader = new MessagesDownloader(Program.LoggingFactory.CreateLogger<MessagesDownloader>());
             RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
             MessageCleanup extractor = new MessageCleanup();
-            var auth = new PersistedAuthentication(new PinConsoleAuthentication(Credentials.Instance.IphoneTwitterCredentials));
+            var auth = new PersistedAuthentication(
+                Program.LoggingFactory.CreateLogger<PersistedAuthentication>(),
+                new PinConsoleAuthentication(
+                    Program.LoggingFactory.CreateLogger<PinConsoleAuthentication>(),
+                    Credentials.Instance.IphoneTwitterCredentials));
             var cred = auth.Authenticate();
             var monitor = new PerformanceMonitor(downloadMessages.Length);
             using (var streamWriter = new StreamWriter(Out, false, new UTF8Encoding(false)))
@@ -56,7 +60,7 @@ namespace Wikiled.ConsoleApp.Twitter
                     cred,
                     () =>
                         {
-                            using (Observable.Interval(TimeSpan.FromSeconds(30)).Subscribe(item => log.Info(monitor)))
+                            using (Observable.Interval(TimeSpan.FromSeconds(30)).Subscribe(item => log.LogInformation(monitor.ToString())))
                             {
                                 downloader.Download(downloadMessages)
                                           .ToObservable()
@@ -80,7 +84,7 @@ namespace Wikiled.ConsoleApp.Twitter
                                                       }
                                                       catch (Exception e)
                                                       {
-                                                          log.Error(e);
+                                                          log.LogError(e, "Error");
                                                       }
 
                                                       return item;
