@@ -15,14 +15,25 @@ using Wikiled.Text.Analysis.Twitter;
 using Wikiled.Twitter.Discovery;
 using Wikiled.Twitter.Security;
 
-namespace Wikiled.ConsoleApp.Twitter
+namespace Wikiled.ConsoleApp.Commands
 {
     /// <summary>
     /// DownloadMessages -Ids=e:\Source\sanders-twitter-0.2\corpus_out.csv -out=.\Messages.csv -Clean
     /// </summary>
     public class DownloadMessagesCommand : Command
     {
-        private ILogger<DownloadMessagesCommand> log = Program.LoggingFactory.CreateLogger<DownloadMessagesCommand>();
+        private ILogger<DownloadMessagesCommand> log;
+
+        private IMessagesDownloader downloader;
+
+        private readonly IAuthentication auth;
+
+        public DownloadMessagesCommand(ILogger<DownloadMessagesCommand> log, IAuthentication auth, IMessagesDownloader downloader)
+        {
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
+            this.downloader = downloader ?? throw new ArgumentNullException(nameof(downloader));
+            this.auth = auth;
+        }
 
         [Required]
         public string Ids { get; set; }
@@ -37,15 +48,8 @@ namespace Wikiled.ConsoleApp.Twitter
             log.LogInformation("Downloading message...");
             var downloadMessages = File.ReadLines(Ids).Select(long.Parse).ToArray();
             log.LogInformation("Total messages to download: {0}", downloadMessages.Length);
-            MessagesDownloader downloader = new MessagesDownloader(Program.LoggingFactory.CreateLogger<MessagesDownloader>());
-            RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
-            MessageCleanup extractor = new MessageCleanup();
-            var auth = new PersistedAuthentication(
-                Program.LoggingFactory.CreateLogger<PersistedAuthentication>(),
-                new PinConsoleAuthentication(
-                    Program.LoggingFactory.CreateLogger<PinConsoleAuthentication>(),
-                    Credentials.Instance.IphoneTwitterCredentials));
             var cred = auth.Authenticate();
+            MessageCleanup extractor = new MessageCleanup();
             var monitor = new PerformanceMonitor(downloadMessages.Length);
             using (var streamWriter = new StreamWriter(Out, false, new UTF8Encoding(false)))
             using (var csvDataTarget = new CsvWriter(streamWriter))

@@ -3,19 +3,25 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using Wikiled.Console.Arguments;
+using Wikiled.ConsoleApp.Commands;
+using Wikiled.ConsoleApp.Twitter;
 
 namespace Wikiled.ConsoleApp
 {
     public static class Program
     {
-        public static LoggerFactory LoggingFactory { get; private set; }
         public static async Task Main(string[] args)
         {
-            LoggingFactory = new LoggerFactory();
+            var loggingFactory = new LoggerFactory();
             NLog.LogManager.LoadConfiguration("nlog.config");
-            LoggingFactory.AddNLog();
-            AutoStarter starter = new AutoStarter("Twitter Bot", args);
-            await starter.Start(CancellationToken.None).ConfigureAwait(false);
+            loggingFactory.AddNLog();
+            AutoStarter starter = new AutoStarter(loggingFactory, "Twitter Bot");
+            starter.Register<DiscoveryCommand>("Discovery");
+            starter.Register<EnrichCommand>("Enrich");
+            starter.Register<DownloadMessagesCommand>("DownloadMessages");
+            starter.Register<TwitterLoad>("Load");
+            starter.Register<TwitterMonitorCommand>("monitor");
+            await starter.Start(args, CancellationToken.None).ConfigureAwait(false);
         }
     }
 }

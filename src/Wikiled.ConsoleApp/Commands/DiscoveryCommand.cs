@@ -11,11 +11,22 @@ using Wikiled.Console.Arguments;
 using Wikiled.Twitter.Discovery;
 using Wikiled.Twitter.Security;
 
-namespace Wikiled.ConsoleApp.Twitter
+namespace Wikiled.ConsoleApp.Commands
 {
     public class DiscoveryCommand : Command
     {
-        private ILogger<DiscoveryCommand> log = Program.LoggingFactory.CreateLogger<DiscoveryCommand>();
+        private readonly ILogger<DiscoveryCommand> log;
+
+        private readonly Func<string[], string[], IMessageDiscovery> discoveryFactory;
+
+        private readonly IAuthentication auth;
+
+        public DiscoveryCommand(ILogger<DiscoveryCommand> log, IAuthentication authentication, Func<string[], string[], IMessageDiscovery> discoveryFactory)
+        {
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
+            this.discoveryFactory = discoveryFactory ?? throw new ArgumentNullException(nameof(discoveryFactory));
+            auth = authentication ?? throw new ArgumentNullException(nameof(authentication));
+        }
 
         [Required]
         public string Topics { get; set; }
@@ -32,14 +43,8 @@ namespace Wikiled.ConsoleApp.Twitter
                 throw new NotSupportedException("Invalid selection");
             }
 
-            RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
-            MessageDiscovery discovery = new MessageDiscovery(Program.LoggingFactory.CreateLogger<MessageDiscovery>(), keywords);
 
-            PersistedAuthentication auth = new PersistedAuthentication(
-                Program.LoggingFactory.CreateLogger<PersistedAuthentication>(),
-                new PinConsoleAuthentication(
-                    Program.LoggingFactory.CreateLogger<PinConsoleAuthentication>(),
-                    Credentials.Instance.IphoneTwitterCredentials));
+            IMessageDiscovery discovery = discoveryFactory(keywords, new string[] { });
             Tweetinvi.Models.ITwitterCredentials cred = auth.Authenticate();
             using (StreamWriter streamWriter = new StreamWriter(Out, true, new UTF8Encoding(false)))
             using (CsvWriter csvDataTarget = new CsvWriter(streamWriter))

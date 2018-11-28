@@ -6,19 +6,27 @@ using System.Threading;
 using System.Threading.Tasks;
 using Wikiled.Console.Arguments;
 using Wikiled.Twitter.Persistency;
-using Wikiled.Twitter.Security;
 using Wikiled.Twitter.Streams;
 
-namespace Wikiled.ConsoleApp.Twitter
+namespace Wikiled.ConsoleApp.Commands
 {
     /// <summary>
     ///     monitor -Out=c:\twitter -Keywords=#Trump,#NeverTrump,#DonaldTrump,#Trump2016,@realDonaldTrump -People=realDonaldTrump
     /// </summary>
     public class TwitterMonitorCommand : Command
     {
-        private ILogger<TwitterMonitorCommand> log = Program.LoggingFactory.CreateLogger<TwitterMonitorCommand>();
+        private ILogger<TwitterMonitorCommand> log;
 
-        private MonitoringStream monitoringStream;
+        private readonly Func<string, TimeSpan, IStreamSource> sourceFactory;
+
+        private readonly IMonitoringStream monitoring;
+
+        private IPersistencyFactory factory;
+
+        public TwitterMonitorCommand(ILogger<TwitterMonitorCommand> log)
+        {
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
+        }
 
         public override string Name => "monitor";
 
@@ -42,22 +50,16 @@ namespace Wikiled.ConsoleApp.Twitter
                 throw new NotSupportedException("Invalid selection");
             }
 
-            using (TimingStreamSource streamSource =
-                new TimingStreamSource(Program.LoggingFactory.CreateLogger<TimingStreamSource>(),
-                                       path,
-                                       TimeSpan.FromHours(1)))
-            using (monitoringStream = new MonitoringStream(Program.LoggingFactory.CreateLogger<MonitoringStream>(),
-                                                           new PersistedAuthentication(Program.LoggingFactory.CreateLogger<PersistedAuthentication>(),
-                                                                                       new PinConsoleAuthentication(Credentials.Instance.IphoneTwitterCredentials))))
+            using (IStreamSource streamSource = sourceFactory(path, TimeSpan.FromHours(1)))
             {
-                var persistency = Compress ? new FilePersistency(streamSource) : new FlatFileSerializer(streamSource);
-                IDisposable subscribtion = monitoringStream.MessagesReceiving
+                var persistency = factory.Create(Compress);
+                IDisposable subscribtion = monitoring.MessagesReceiving
                     .ObserveOn(TaskPoolScheduler.Default)
                     .Subscribe(item => persistency.Save(item));
-                await monitoringStream.Start(keywords, follow).ConfigureAwait(false);
+                await monitoring.Start(keywords, follow).ConfigureAwait(false);
                 System.Console.WriteLine("To stop press enter...");
                 System.Console.ReadLine();
-                monitoringStream.Stop();
+                monitoring.Stop();
                 subscribtion.Dispose();
             }
         }

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Tweetinvi.Models;
+using Tweetinvi.Models.DTO;
 
 namespace Wikiled.Twitter.Streams
 {
     public interface IMonitoringStream : IDisposable
     {
+        IObservable<ITweetDTO> MessagesReceiving { get; set; }
+
         bool IsActive { get; }
 
         LanguageFilter[] LanguageFilters { get; set; }

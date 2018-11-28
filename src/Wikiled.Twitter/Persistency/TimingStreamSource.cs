@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Microsoft.Extensions.Logging;
-using NLog;
 using Wikiled.Common.Extensions;
 
 namespace Wikiled.Twitter.Persistency

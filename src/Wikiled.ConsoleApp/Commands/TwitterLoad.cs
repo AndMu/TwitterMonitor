@@ -1,30 +1,30 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using NLog;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Tweetinvi;
 using Tweetinvi.Core.Helpers;
 using Tweetinvi.Logic.DTO;
 using Wikiled.Common.Logging;
 using Wikiled.Console.Arguments;
+using Wikiled.ConsoleApp.Twitter;
 using Wikiled.Redis.Config;
 using Wikiled.Redis.Logic;
 using Wikiled.Twitter.Persistency;
 
-namespace Wikiled.ConsoleApp.Twitter
+namespace Wikiled.ConsoleApp.Commands
 {
     /// <summary>
     ///     load -Out=E:\Data\Twitter -TypeName=Trump
     /// </summary>
     public class TwitterLoad : Command
     {
-        private ILogger<TwitterLoad> log = Program.LoggingFactory.CreateLogger<TwitterLoad>();
+        private ILogger<TwitterLoad> log;
 
         private readonly IJsonObjectConverter jsonConvert;
 
@@ -34,8 +34,9 @@ namespace Wikiled.ConsoleApp.Twitter
 
         private int total;
 
-        public TwitterLoad()
+        public TwitterLoad(ILogger<TwitterLoad> log)
         {
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
             jsonConvert = TweetinviContainer.Resolve<IJsonObjectConverter>();
         }
 

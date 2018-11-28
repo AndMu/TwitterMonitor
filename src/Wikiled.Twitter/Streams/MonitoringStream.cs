@@ -4,7 +4,6 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NLog;
 using Tweetinvi;
 using Tweetinvi.Core.Exceptions;
 using Tweetinvi.Core.Helpers;
