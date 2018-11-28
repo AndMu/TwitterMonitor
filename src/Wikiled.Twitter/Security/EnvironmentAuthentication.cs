@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
-using NLog;
 using Tweetinvi.Models;
 using Wikiled.Common.Utilities.Config;
 

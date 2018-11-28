@@ -15,6 +15,7 @@ using Tweetinvi;
 using Wikiled.Arff.Persistence;
 using Wikiled.Common.Logging;
 using Wikiled.Console.Arguments;
+using Wikiled.ConsoleApp.Commands.Config;
 using Wikiled.ConsoleApp.Twitter;
 using Wikiled.Text.Analysis.Twitter;
 using Wikiled.Twitter.Discovery;
@@ -27,7 +28,7 @@ namespace Wikiled.ConsoleApp.Commands
     /// </summary>
     public class EnrichCommand : Command
     {
-        private ILogger<EnrichCommand> log;
+        private readonly ILogger<EnrichCommand> log;
 
         private string[] positive;
 
@@ -37,18 +38,15 @@ namespace Wikiled.ConsoleApp.Commands
 
         private readonly Func<string[], string[], IMessageDiscovery> discoveryFactory;
 
-        public EnrichCommand(ILogger<EnrichCommand> log, IAuthentication auth, Func<string[], string[], IMessageDiscovery> discoveryFactory)
+        private EnrichConfig config;
+
+        public EnrichCommand(ILogger<EnrichCommand> log, IAuthentication auth, Func<string[], string[], IMessageDiscovery> discoveryFactory, EnrichConfig config)
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
             this.auth = auth ?? throw new ArgumentNullException(nameof(auth));
             this.discoveryFactory = discoveryFactory ?? throw new ArgumentNullException(nameof(discoveryFactory));
+            this.config = config ?? throw new ArgumentNullException(nameof(config));
         }
-
-        [Required]
-        public string Topics { get; set; }
-
-        [Required]
-        public string Out { get; set; }
 
         protected override Task Execute(CancellationToken token)
         {
@@ -59,7 +57,7 @@ namespace Wikiled.ConsoleApp.Commands
             var monitor = new PerformanceMonitor(100000);
             var cred = auth.Authenticate();
             using (Observable.Interval(TimeSpan.FromSeconds(30)).Subscribe(item => log.LogInformation(monitor.ToString())))
-            using (var streamWriter = new StreamWriter(Out, true, new UTF8Encoding(false)))
+            using (var streamWriter = new StreamWriter(config.Out, true, new UTF8Encoding(false)))
             using (var csvDataTarget = new CsvWriter(streamWriter))
             {
                 Auth.ExecuteOperationWithCredentials(
@@ -121,8 +119,8 @@ namespace Wikiled.ConsoleApp.Commands
 
         private IEnumerable<SentimentDiscovery> Enrichment()
         {
-            string[] keywords = string.IsNullOrEmpty(Topics) ? new string[] { } : Topics.Split(',');
-            if (Topics.Length == 0)
+            string[] keywords = string.IsNullOrEmpty(config.Topics) ? new string[] { } : config.Topics.Split(',');
+            if (config.Topics.Length == 0)
             {
                 throw new NotSupportedException("Invalid selection");
             }

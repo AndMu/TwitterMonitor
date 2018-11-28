@@ -11,9 +11,9 @@ namespace Wikiled.Twitter.Security
     {
         private readonly ILogger<PinConsoleAuthentication> log;
 
-        private readonly ITwitterCredentials applicationCredentials;
+        private readonly ICredentialsSource applicationCredentials;
 
-        public PinConsoleAuthentication(ILogger<PinConsoleAuthentication> log, ITwitterCredentials applicationCredentials)
+        public PinConsoleAuthentication(ILogger<PinConsoleAuthentication> log, ICredentialsSource applicationCredentials)
         {
             this.applicationCredentials = applicationCredentials ?? throw new ArgumentNullException(nameof(applicationCredentials));
             this.log = log ?? throw new ArgumentNullException(nameof(log));
@@ -22,12 +22,13 @@ namespace Wikiled.Twitter.Security
         public ITwitterCredentials Authenticate()
         {
             // Go to the URL so that Twitter authenticates the user and gives him a PIN code
-            IAuthenticationContext authenticationContext = AuthFlow.InitAuthentication(applicationCredentials);
+            var token = applicationCredentials.Resolve();
+            IAuthenticationContext authenticationContext = AuthFlow.InitAuthentication(token);
 
             // This line is an example, on how to make the user go on the URL
             Process.Start(authenticationContext.AuthorizationURL);
-            log.LogInformation("Enter your Pin:");
-
+            log.LogInformation("Reading console pin");
+            Console.WriteLine("Enter your Pin:");
             // Ask the user to enter the pin code given by Twitter
             string pinCode = Console.ReadLine();
             if (string.IsNullOrEmpty(pinCode))

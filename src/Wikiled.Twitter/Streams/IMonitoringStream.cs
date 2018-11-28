@@ -7,7 +7,7 @@ namespace Wikiled.Twitter.Streams
 {
     public interface IMonitoringStream : IDisposable
     {
-        IObservable<ITweetDTO> MessagesReceiving { get; set; }
+        IObservable<ITweetDTO> MessagesReceiving { get; }
 
         bool IsActive { get; }
 

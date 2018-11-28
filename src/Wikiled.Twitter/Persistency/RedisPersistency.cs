@@ -14,7 +14,7 @@ using Wikiled.Twitter.Persistency.Data;
 
 namespace Wikiled.Twitter.Persistency
 {
-    public class RedisPersistency : IRepository
+    public class RedisPersistency : IRedisPersistency
     {
         private readonly ILogger<RedisPersistency> log;
 

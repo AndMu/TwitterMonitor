@@ -1,20 +1,18 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Tweetinvi;
 using Tweetinvi.Core.Helpers;
 using Tweetinvi.Logic.DTO;
 using Wikiled.Common.Logging;
 using Wikiled.Console.Arguments;
+using Wikiled.ConsoleApp.Commands.Config;
 using Wikiled.ConsoleApp.Twitter;
-using Wikiled.Redis.Config;
-using Wikiled.Redis.Logic;
+using Wikiled.Redis.Persistency;
 using Wikiled.Twitter.Persistency;
 
 namespace Wikiled.ConsoleApp.Commands
@@ -22,50 +20,43 @@ namespace Wikiled.ConsoleApp.Commands
     /// <summary>
     ///     load -Out=E:\Data\Twitter -TypeName=Trump
     /// </summary>
-    public class TwitterLoad : Command
+    public class TwitterLoadCommand : Command
     {
-        private ILogger<TwitterLoad> log;
+        private ILogger<TwitterLoadCommand> log;
 
         private readonly IJsonObjectConverter jsonConvert;
 
         private readonly ChunkProcessor processor = new ChunkProcessor();
 
-        private RedisPersistency persistency;
+        private IRedisPersistency persistency;
+
+        private IFileLoader fileLoader;
 
         private int total;
 
-        public TwitterLoad(ILogger<TwitterLoad> log)
+        private readonly TwitterLoadConfig config;
+
+        public TwitterLoadCommand(ILogger<TwitterLoadCommand> log, TwitterLoadConfig config, IRedisPersistency persistency, IFileLoader fileLoader)
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
+            this.config = config ?? throw new ArgumentNullException(nameof(config));
+            this.persistency = persistency ?? throw new ArgumentNullException(nameof(persistency));
+            this.fileLoader = fileLoader ?? throw new ArgumentNullException(nameof(fileLoader));
             jsonConvert = TweetinviContainer.Resolve<IJsonObjectConverter>();
         }
 
-        public override string Name => "load";
-
-        [Required]
-        public string Out { get; set; }
-
-        [Required]
-        public string TypeName { get; set; }
-
-        protected override Task Execute(CancellationToken token)
+        protected override async Task Execute(CancellationToken token)
         {
             try
             {
                 log.LogInformation("Starting twitter loading...");
-                RedisLink link = new RedisLink(TypeName, new RedisMultiplexer(new RedisConfiguration("localhost", 6370)));
-                link.Open();
-                persistency = new RedisPersistency(Program.LoggingFactory.CreateLogger<RedisPersistency>(), link, new MemoryCache(new MemoryCacheOptions()));
-                string[] files = Directory.GetFiles(Out, "*.dat", SearchOption.AllDirectories);
-                Process(files).Wait();
-                link.Dispose();
+                string[] files = Directory.GetFiles(config.Out, "*.dat", SearchOption.AllDirectories);
+                await Process(files).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 log.LogError(ex, "Failed");
             }
-
-            return Task.CompletedTask;
         }
 
         private async Task Deserialized(ProcessingChunk<TweetDTO> tweetDto)
@@ -119,7 +110,7 @@ namespace Wikiled.ConsoleApp.Commands
                 {
                     try
                     {
-                        string[] data = new FileLoader(Program.LoggingFactory.CreateLogger<FileLoader>()).Load(file);
+                        string[] data = fileLoader.Load(file);
                         for (int i = 0; i < data.Length; i++)
                         {
                             await inputBlock.SendAsync(new ProcessingChunk<string>(file, i, data.Length, data[i])).ConfigureAwait(false);

@@ -21,16 +21,16 @@ namespace Wikiled.Twitter.Persistency
 
         private FileStream stream;
 
-        public TimingStreamSource(ILogger<TimingStreamSource> log, string path, TimeSpan fileCreation)
+        public TimingStreamSource(ILogger<TimingStreamSource> log, TimingStreamConfig config)
         {
-            if (string.IsNullOrEmpty(path))
+            if (config == null)
             {
-                throw new ArgumentException("Value cannot be null or empty.", nameof(path));
+                throw new ArgumentNullException(nameof(config));
             }
 
             log.LogDebug(path);
-            this.path = path;
-            this.fileCreation = fileCreation;
+            path = config.Path;
+            fileCreation = config.FileCreation;
             this.log = log;
             path.EnsureDirectoryExistence();
         }

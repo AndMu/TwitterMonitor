@@ -76,8 +76,9 @@ namespace Wikiled.Twitter.Streams
             IsActive = true;
             ExceptionHandler.SwallowWebExceptions = false;
             ExceptionHandler.WebExceptionReceived += ExceptionHandlerOnWebExceptionReceived;
-
-            stream = Stream.CreateFilteredStream(auth.Authenticate());
+            var authenticated = auth.Authenticate();
+            Auth.SetCredentials(authenticated);
+            stream = Stream.CreateFilteredStream(authenticated);
             if (LanguageFilters != null)
             {
                 foreach (var filter in LanguageFilters)

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Tweetinvi;
 using Wikiled.Common.Logging;
 using Wikiled.Console.Arguments;
+using Wikiled.ConsoleApp.Commands.Config;
 using Wikiled.Text.Analysis.Twitter;
 using Wikiled.Twitter.Discovery;
 using Wikiled.Twitter.Security;
@@ -24,34 +25,29 @@ namespace Wikiled.ConsoleApp.Commands
     {
         private ILogger<DownloadMessagesCommand> log;
 
-        private IMessagesDownloader downloader;
+        private readonly IMessagesDownloader downloader;
 
         private readonly IAuthentication auth;
 
-        public DownloadMessagesCommand(ILogger<DownloadMessagesCommand> log, IAuthentication auth, IMessagesDownloader downloader)
+        private DownloadMessagesConfig config;
+
+        public DownloadMessagesCommand(ILogger<DownloadMessagesCommand> log, IAuthentication auth, IMessagesDownloader downloader, DownloadMessagesConfig config)
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
             this.downloader = downloader ?? throw new ArgumentNullException(nameof(downloader));
-            this.auth = auth;
+            this.config = config ?? throw new ArgumentNullException(nameof(config));
+            this.auth = auth ?? throw new ArgumentNullException(nameof(auth));
         }
-
-        [Required]
-        public string Ids { get; set; }
-
-        [Required]
-        public string Out { get; set; }
-
-        public bool Clean { get; set; }
 
         protected override Task Execute(CancellationToken token)
         {
             log.LogInformation("Downloading message...");
-            var downloadMessages = File.ReadLines(Ids).Select(long.Parse).ToArray();
+            var downloadMessages = File.ReadLines(config.Ids).Select(long.Parse).ToArray();
             log.LogInformation("Total messages to download: {0}", downloadMessages.Length);
             var cred = auth.Authenticate();
             MessageCleanup extractor = new MessageCleanup();
             var monitor = new PerformanceMonitor(downloadMessages.Length);
-            using (var streamWriter = new StreamWriter(Out, false, new UTF8Encoding(false)))
+            using (var streamWriter = new StreamWriter(config.Out, false, new UTF8Encoding(false)))
             using (var csvDataTarget = new CsvWriter(streamWriter))
             {
                 csvDataTarget.WriteField("Id");
@@ -77,7 +73,7 @@ namespace Wikiled.ConsoleApp.Commands
                                                           csvDataTarget.WriteField(item.CreatedAt);
                                                           csvDataTarget.WriteField(item.CreatedBy.Id);
                                                           var text = item.Text;
-                                                          if (Clean)
+                                                          if (config.Clean)
                                                           {
                                                               text = extractor.Cleanup(text);
                                                           }

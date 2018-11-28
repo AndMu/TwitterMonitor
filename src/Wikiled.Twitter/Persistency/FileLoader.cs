@@ -9,7 +9,7 @@ using Wikiled.Twitter.Persistency.Data;
 
 namespace Wikiled.Twitter.Persistency
 {
-    public class FileLoader
+    public class FileLoader : IFileLoader
     {
         private readonly ILogger<FileLoader> log;
 

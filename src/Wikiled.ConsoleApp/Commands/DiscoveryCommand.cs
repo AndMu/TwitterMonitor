@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tweetinvi;
 using Wikiled.Console.Arguments;
+using Wikiled.ConsoleApp.Commands.Config;
 using Wikiled.Twitter.Discovery;
 using Wikiled.Twitter.Security;
 
@@ -21,24 +22,24 @@ namespace Wikiled.ConsoleApp.Commands
 
         private readonly IAuthentication auth;
 
-        public DiscoveryCommand(ILogger<DiscoveryCommand> log, IAuthentication authentication, Func<string[], string[], IMessageDiscovery> discoveryFactory)
+        private readonly DiscoveryConfig config;
+
+        public DiscoveryCommand(ILogger<DiscoveryCommand> log,
+                                IAuthentication authentication,
+                                Func<string[], string[], IMessageDiscovery> discoveryFactory,
+                                DiscoveryConfig config)
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
             this.discoveryFactory = discoveryFactory ?? throw new ArgumentNullException(nameof(discoveryFactory));
+            this.config = config ?? throw new ArgumentNullException(nameof(config));
             auth = authentication ?? throw new ArgumentNullException(nameof(authentication));
         }
-
-        [Required]
-        public string Topics { get; set; }
-
-        [Required]
-        public string Out { get; set; }
 
         protected override Task Execute(CancellationToken token)
         {
             log.LogInformation("Starting twitter monitoring...");
-            string[] keywords = string.IsNullOrEmpty(Topics) ? new string[] { } : Topics.Split(',');
-            if (Topics.Length == 0)
+            string[] keywords = string.IsNullOrEmpty(config.Topics) ? new string[] { } : config.Topics.Split(',');
+            if (config.Topics.Length == 0)
             {
                 throw new NotSupportedException("Invalid selection");
             }
@@ -46,7 +47,7 @@ namespace Wikiled.ConsoleApp.Commands
 
             IMessageDiscovery discovery = discoveryFactory(keywords, new string[] { });
             Tweetinvi.Models.ITwitterCredentials cred = auth.Authenticate();
-            using (StreamWriter streamWriter = new StreamWriter(Out, true, new UTF8Encoding(false)))
+            using (StreamWriter streamWriter = new StreamWriter(config.Out, true, new UTF8Encoding(false)))
             using (CsvWriter csvDataTarget = new CsvWriter(streamWriter))
             {
                 Auth.ExecuteOperationWithCredentials(

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using Wikiled.Console.Arguments;
 using Wikiled.ConsoleApp.Commands;
-using Wikiled.ConsoleApp.Twitter;
+using Wikiled.ConsoleApp.Commands.Config;
 
 namespace Wikiled.ConsoleApp
 {
@@ -16,11 +16,11 @@ namespace Wikiled.ConsoleApp
             NLog.LogManager.LoadConfiguration("nlog.config");
             loggingFactory.AddNLog();
             AutoStarter starter = new AutoStarter(loggingFactory, "Twitter Bot");
-            starter.Register<DiscoveryCommand>("Discovery");
-            starter.Register<EnrichCommand>("Enrich");
-            starter.Register<DownloadMessagesCommand>("DownloadMessages");
-            starter.Register<TwitterLoad>("Load");
-            starter.Register<TwitterMonitorCommand>("monitor");
+            starter.RegisterCommand<DiscoveryCommand, DiscoveryConfig>("Discovery");
+            starter.RegisterCommand<EnrichCommand, EnrichConfig>("Enrich");
+            starter.RegisterCommand<DownloadMessagesCommand, DownloadMessagesConfig>("DownloadMessages");
+            starter.RegisterCommand<TwitterLoadCommand, TwitterLoadConfig>("Load");
+            starter.RegisterCommand<TwitterMonitorCommand, TwitterMonitorConfig>("monitor");
             await starter.Start(args, CancellationToken.None).ConfigureAwait(false);
         }
     }
