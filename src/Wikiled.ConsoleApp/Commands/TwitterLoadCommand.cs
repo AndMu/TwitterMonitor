@@ -12,7 +12,6 @@ using Wikiled.Common.Logging;
 using Wikiled.Console.Arguments;
 using Wikiled.ConsoleApp.Commands.Config;
 using Wikiled.ConsoleApp.Twitter;
-using Wikiled.Redis.Persistency;
 using Wikiled.Twitter.Persistency;
 
 namespace Wikiled.ConsoleApp.Commands
@@ -22,15 +21,15 @@ namespace Wikiled.ConsoleApp.Commands
     /// </summary>
     public class TwitterLoadCommand : Command
     {
-        private ILogger<TwitterLoadCommand> log;
+        private readonly ILogger<TwitterLoadCommand> log;
 
         private readonly IJsonObjectConverter jsonConvert;
 
         private readonly ChunkProcessor processor = new ChunkProcessor();
 
-        private IRedisPersistency persistency;
+        private readonly IRedisPersistency persistency;
 
-        private IFileLoader fileLoader;
+        private readonly IFileLoader fileLoader;
 
         private int total;
 

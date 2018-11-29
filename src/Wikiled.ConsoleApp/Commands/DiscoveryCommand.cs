@@ -18,7 +18,7 @@ namespace Wikiled.ConsoleApp.Commands
     {
         private readonly ILogger<DiscoveryCommand> log;
 
-        private readonly Func<string[], string[], IMessageDiscovery> discoveryFactory;
+        private readonly Func<DiscoveryRequest, IMessageDiscovery> discoveryFactory;
 
         private readonly IAuthentication auth;
 
@@ -26,7 +26,7 @@ namespace Wikiled.ConsoleApp.Commands
 
         public DiscoveryCommand(ILogger<DiscoveryCommand> log,
                                 IAuthentication authentication,
-                                Func<string[], string[], IMessageDiscovery> discoveryFactory,
+                                Func<DiscoveryRequest, IMessageDiscovery> discoveryFactory,
                                 DiscoveryConfig config)
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
@@ -45,7 +45,7 @@ namespace Wikiled.ConsoleApp.Commands
             }
 
 
-            IMessageDiscovery discovery = discoveryFactory(keywords, new string[] { });
+            IMessageDiscovery discovery = discoveryFactory(new DiscoveryRequest(keywords));
             Tweetinvi.Models.ITwitterCredentials cred = auth.Authenticate();
             using (StreamWriter streamWriter = new StreamWriter(config.Out, true, new UTF8Encoding(false)))
             using (CsvWriter csvDataTarget = new CsvWriter(streamWriter))

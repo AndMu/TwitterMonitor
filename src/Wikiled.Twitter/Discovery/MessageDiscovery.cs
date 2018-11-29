@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
+using MoreLinq.Extensions;
 using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Parameters;
@@ -14,17 +14,14 @@ namespace Wikiled.Twitter.Discovery
     {
         private readonly ILogger<MessageDiscovery> log;
 
-        private readonly string[] topics;
-
-        private readonly string[] enrichment;
+        private readonly DiscoveryRequest request;
 
         private readonly HashSet<long> processed = new HashSet<long>();
 
-        public MessageDiscovery(ILogger<MessageDiscovery> log, string[] topics, params string[] enrichment)
+        public MessageDiscovery(ILogger<MessageDiscovery> log, DiscoveryRequest request)
         {
-            this.topics = topics ?? throw new ArgumentNullException(nameof(topics));
             this.log = log ?? throw new ArgumentNullException(nameof(log));
-            this.enrichment = enrichment ?? throw new ArgumentNullException(nameof(enrichment));
+            this.request = request ?? throw new ArgumentNullException(nameof(request));
         }
 
         public LanguageFilter Language { get; } = LanguageFilter.English;
@@ -48,9 +45,9 @@ namespace Wikiled.Twitter.Discovery
 
         public IEnumerable<(ITweet Message, string Topic)> Process()
         {
-            if (enrichment.Length > 0)
+            if (request.Enrichment.Length > 0)
             {
-                foreach (IEnumerable<string> batch in enrichment.Batch(BatchSize))
+                foreach (IEnumerable<string> batch in request.Enrichment.Batch(BatchSize))
                 {
                     var item = batch.AccumulateItems(" OR ");
                     var result = ProcessEnrichment(item);
@@ -72,7 +69,7 @@ namespace Wikiled.Twitter.Discovery
 
         private IEnumerable<(ITweet Message, string Topic)> ProcessEnrichment(string enrichmentItem)
         {
-            foreach (var topic in topics)
+            foreach (var topic in request.Topics)
             {
                 int total = 0;
                 DateTime lastSearch = DateTime.Now;

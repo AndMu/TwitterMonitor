@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
@@ -36,11 +35,11 @@ namespace Wikiled.ConsoleApp.Commands
 
         private readonly IAuthentication auth;
 
-        private readonly Func<string[], string[], IMessageDiscovery> discoveryFactory;
+        private readonly Func<DiscoveryRequest, IMessageDiscovery> discoveryFactory;
 
         private EnrichConfig config;
 
-        public EnrichCommand(ILogger<EnrichCommand> log, IAuthentication auth, Func<string[], string[], IMessageDiscovery> discoveryFactory, EnrichConfig config)
+        public EnrichCommand(ILogger<EnrichCommand> log, IAuthentication auth, Func<DiscoveryRequest, IMessageDiscovery> discoveryFactory, EnrichConfig config)
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
             this.auth = auth ?? throw new ArgumentNullException(nameof(auth));
@@ -125,8 +124,8 @@ namespace Wikiled.ConsoleApp.Commands
                 throw new NotSupportedException("Invalid selection");
             }
 
-            yield return new SentimentDiscovery(PositivityType.Negative, discoveryFactory(keywords, negative));
-            yield return new SentimentDiscovery(PositivityType.Positive, discoveryFactory(keywords, positive));
+            yield return new SentimentDiscovery(PositivityType.Negative, discoveryFactory(new DiscoveryRequest(keywords, negative)));
+            yield return new SentimentDiscovery(PositivityType.Positive, discoveryFactory(new DiscoveryRequest(keywords, positive)));
         }
 
         private void SetupWords()

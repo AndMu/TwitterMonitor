@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Tweetinvi;
 using Wikiled.Twitter.Discovery;
+using Wikiled.Twitter.Persistency;
 using Wikiled.Twitter.Streams;
 
 namespace Wikiled.Twitter.Modules
@@ -12,6 +13,8 @@ namespace Wikiled.Twitter.Modules
             RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
             builder.RegisterType<MessageDiscovery>().As<IMessageDiscovery>();
             builder.RegisterType<MonitoringStream>().As<IMonitoringStream>();
+            builder.RegisterType<MessagesDownloader>().As<IMessagesDownloader>();
+            builder.RegisterType<FileLoader>().As<IFileLoader>();
             base.Load(builder);
         }
     }
