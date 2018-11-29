@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using NLog.Extensions.Logging;
 using Wikiled.Console.Arguments;
@@ -19,7 +20,18 @@ namespace Wikiled.ConsoleApp
             starter.RegisterCommand<DownloadMessagesCommand, DownloadMessagesConfig>("DownloadMessages");
             starter.RegisterCommand<TwitterLoadCommand, TwitterLoadConfig>("load");
             starter.RegisterCommand<TwitterMonitorCommand, TwitterMonitorConfig>("monitor");
-            await starter.Start(args, CancellationToken.None).ConfigureAwait(false);
+            starter.RegisterCommand<TestPublishCommand, TestPublishConfig>("publish");
+
+            CancellationTokenSource source = new CancellationTokenSource();
+            var task = starter.Start(args, source.Token);
+            System.Console.WriteLine("Please press enter to exit...");
+            System.Console.ReadLine();
+            if (!task.IsCompleted)
+            {
+                source.Cancel();
+                source = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                await starter.Stop(source.Token).ConfigureAwait(false);
+            }
         }
     }
 }

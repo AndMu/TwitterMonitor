@@ -49,8 +49,6 @@ namespace Wikiled.ConsoleApp.Commands
                 .Subscribe(item => persistency.Save(item));
             await monitoring.Start(keywords, follow).ConfigureAwait(false);
             subscribtion.Dispose();
-            System.Console.WriteLine("To stop press enter...");
-            System.Console.ReadLine();
         }
     }
 }

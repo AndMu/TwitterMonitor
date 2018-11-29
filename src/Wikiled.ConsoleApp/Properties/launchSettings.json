@@ -2,7 +2,7 @@
   "profiles": {
     "Wikiled.ConsoleApp": {
       "commandName": "Project",
-      "commandLineArgs": "Discovery -Topics=cool -out=.\\Messages.csv"
+      "commandLineArgs": "publish -Text=\"This is a very long sample Sample Image This is a very long sample Sample Image This is a very long sample Sample Image This is a very long sample Sample Image This is a very long sample Sample Image This is a very long sample Sample Image\""
     }
   }
 }

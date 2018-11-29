@@ -44,7 +44,6 @@ namespace Wikiled.ConsoleApp.Commands
                 throw new NotSupportedException("Invalid selection");
             }
 
-
             IMessageDiscovery discovery = discoveryFactory(new DiscoveryRequest(keywords));
             Tweetinvi.Models.ITwitterCredentials cred = auth.Authenticate();
             using (StreamWriter streamWriter = new StreamWriter(config.Out, true, new UTF8Encoding(false)))
