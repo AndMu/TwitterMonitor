@@ -30,6 +30,7 @@ namespace Wikiled.Twitter.Persistency
 
             log.LogDebug(path);
             path = config.Path;
+            path.EnsureDirectoryExistence();
             fileCreation = config.FileCreation;
             this.log = log;
             path.EnsureDirectoryExistence();
