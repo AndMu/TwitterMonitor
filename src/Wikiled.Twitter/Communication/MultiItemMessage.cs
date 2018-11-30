@@ -37,7 +37,7 @@ namespace Wikiled.Twitter.Communication
             {
                 if (builder == null)
                 {
-                    builder = new StringBuilder(Header);
+                    builder = new StringBuilder($"{Header}\r\n");
                 }
 
                 var predicted = builder.Length + message.Length + 1;
@@ -48,7 +48,7 @@ namespace Wikiled.Twitter.Communication
                 }
                 else
                 {
-                    builder.AppendFormat(" {0}", message);
+                    builder.AppendFormat(" {0}\r\n", message);
                 }
             }
 
