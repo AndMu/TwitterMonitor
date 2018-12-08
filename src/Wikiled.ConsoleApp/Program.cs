@@ -13,7 +13,7 @@ namespace Wikiled.ConsoleApp
         public static async Task Main(string[] args)
         {
             NLog.LogManager.LoadConfiguration("nlog.config");
-            AutoStarter starter = new AutoStarter("Twitter Bot");
+            AutoStarter starter = new AutoStarter("Twitter Bot", args);
             starter.Factory.AddNLog();
             starter.RegisterCommand<DiscoveryCommand, DiscoveryConfig>("Discovery");
             starter.RegisterCommand<EnrichCommand, EnrichConfig>("Enrich");
@@ -23,14 +23,14 @@ namespace Wikiled.ConsoleApp
             starter.RegisterCommand<TestPublishCommand, TestPublishConfig>("publish");
 
             CancellationTokenSource source = new CancellationTokenSource();
-            var task = starter.Start(args, source.Token);
+            var task = starter.StartAsync(source.Token);
             System.Console.WriteLine("Please press enter to exit...");
             System.Console.ReadLine();
             if (!task.IsCompleted)
             {
                 source.Cancel();
                 source = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-                await starter.Stop(source.Token).ConfigureAwait(false);
+                await starter.StopAsync(source.Token).ConfigureAwait(false);
             }
         }
     }

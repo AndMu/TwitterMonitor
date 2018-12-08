@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Diagnostics;
 using System.Security.Authentication;
 using Tweetinvi;
 using Tweetinvi.Models;
+using Wikiled.Common.Utilities.Helpers;
 
 namespace Wikiled.Twitter.Security
 {
@@ -26,7 +26,7 @@ namespace Wikiled.Twitter.Security
             IAuthenticationContext authenticationContext = AuthFlow.InitAuthentication(token);
 
             // This line is an example, on how to make the user go on the URL
-            Process.Start(authenticationContext.AuthorizationURL);
+            ExternaApp.OpenUrl(authenticationContext.AuthorizationURL);
             log.LogInformation("Reading console pin");
             Console.WriteLine("Enter your Pin:");
             // Ask the user to enter the pin code given by Twitter
