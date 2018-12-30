@@ -24,7 +24,7 @@ namespace Wikiled.Twitter.Persistency.Data
                     return 0;
                 }
 
-                for (int i = 1; i < copy.Length; i++)
+                for (var i = 1; i < copy.Length; i++)
                 {
                     distance += copy[i].CalculateDistance(copy[i - 1]);
                 }

@@ -33,7 +33,7 @@ namespace Wikiled.Twitter.Security
 
             var credentials = underlying.Authenticate();
             json = JsonConvert.SerializeObject((TwitterCredentials)credentials);
-            string jsonFormatted = JToken.Parse(json).ToString(Formatting.Indented);
+            var jsonFormatted = JToken.Parse(json).ToString(Formatting.Indented);
             File.WriteAllText(file, jsonFormatted);
             return credentials;
         }

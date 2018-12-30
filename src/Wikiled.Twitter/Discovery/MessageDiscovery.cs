@@ -47,7 +47,7 @@ namespace Wikiled.Twitter.Discovery
         {
             if (request.Enrichment.Length > 0)
             {
-                foreach (IEnumerable<string> batch in request.Enrichment.Batch(BatchSize))
+                foreach (var batch in request.Enrichment.Batch(BatchSize))
                 {
                     var item = batch.AccumulateItems(" OR ");
                     var result = ProcessEnrichment(item);
@@ -71,8 +71,8 @@ namespace Wikiled.Twitter.Discovery
         {
             foreach (var topic in request.Topics)
             {
-                int total = 0;
-                DateTime lastSearch = DateTime.Now;
+                var total = 0;
+                var lastSearch = DateTime.Now;
                 do
                 {
                     total = 0;

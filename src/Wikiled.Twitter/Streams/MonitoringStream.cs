@@ -129,7 +129,7 @@ namespace Wikiled.Twitter.Streams
 
         public void TrackUser(string follow)
         {
-            IUser user = User.GetUserFromScreenName(follow);
+            var user = User.GetUserFromScreenName(follow);
             following.Add(user.Id);
             log.LogInformation("Add follow {0}", user);
             stream.AddFollow(user);
@@ -173,7 +173,7 @@ namespace Wikiled.Twitter.Streams
 
         private void StreamOnWarningFallingBehindDetected(object sender, WarningFallingBehindEventArgs warningFallingBehindEventArgs)
         {
-            string message = $"Falling behind {warningFallingBehindEventArgs.WarningMessage}...";
+            var message = $"Falling behind {warningFallingBehindEventArgs.WarningMessage}...";
             log.LogWarning(message);
         }
 
@@ -189,7 +189,7 @@ namespace Wikiled.Twitter.Streams
 
         private void StreamOnLimitReached(object sender, LimitReachedEventArgs limitReachedEventArgs)
         {
-            string message = $"Limit reached: {limitReachedEventArgs.NumberOfTweetsNotReceived}";
+            var message = $"Limit reached: {limitReachedEventArgs.NumberOfTweetsNotReceived}";
             log.LogInformation(message);
         }
     }

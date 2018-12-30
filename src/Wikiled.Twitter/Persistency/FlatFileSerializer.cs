@@ -21,7 +21,7 @@ namespace Wikiled.Twitter.Persistency
         public void Save(ITweetDTO dto)
         {
             var textItem = cleanup.Cleanup(dto.Text);
-            string text = $"{dto.CreatedAt}\t{dto.Id}\t{dto.CreatedBy.Id}\t{dto.Retweeted}\t{textItem}\r\n";
+            var text = $"{dto.CreatedAt}\t{dto.Id}\t{dto.CreatedBy.Id}\t{dto.Retweeted}\t{textItem}\r\n";
             lock (syncRoot)
             {
                 var stream = streamSource.GetStream();

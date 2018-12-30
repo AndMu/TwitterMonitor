@@ -9,7 +9,7 @@ namespace Wikiled.ConsoleApp.Twitter
 
         public void Add(IProcessingChunk chunk)
         {
-            if (!table.TryGetValue(chunk.FileName, out ConcurrentBag<IProcessingChunk> bag))
+            if (!table.TryGetValue(chunk.FileName, out var bag))
             {
                 bag = new ConcurrentBag<IProcessingChunk>();
                 if (!table.TryAdd(chunk.FileName, bag))

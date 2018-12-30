@@ -45,7 +45,7 @@ namespace Wikiled.ConsoleApp.Commands
             var downloadMessages = File.ReadLines(config.Ids).Select(long.Parse).ToArray();
             log.LogInformation("Total messages to download: {0}", downloadMessages.Length);
             var cred = auth.Authenticate();
-            MessageCleanup extractor = new MessageCleanup();
+            var extractor = new MessageCleanup();
             var monitor = new PerformanceMonitor(downloadMessages.Length);
             using (var streamWriter = new StreamWriter(config.Out, false, new UTF8Encoding(false)))
             using (var csvDataTarget = new CsvWriter(streamWriter))

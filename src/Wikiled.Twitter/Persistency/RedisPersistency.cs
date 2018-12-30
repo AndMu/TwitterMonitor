@@ -81,8 +81,8 @@ namespace Wikiled.Twitter.Persistency
                                              var message = await ConstructMessage(item).ConfigureAwait(false);
                                              if (message.Data.IsRetweet && ResolveRetweets)
                                              {
-                                                 string id = $"Message{message.Data.RetweetedId}";
-                                                 MessageItem retweet = await cache.GetOrCreateAsync(
+                                                 var id = $"Message{message.Data.RetweetedId}";
+                                                 var retweet = await cache.GetOrCreateAsync(
                                                      id,
                                                      async cacheItem =>
                                                          {
@@ -114,7 +114,7 @@ namespace Wikiled.Twitter.Persistency
         public async Task<TweetData> LoadMessage(long id)
         {
             var key = GetTweetKey(id);
-            string idText = id.ToString();
+            var idText = id.ToString();
             if (cache.TryGetValue(idText, out TweetData message))
             {
                 return message;
@@ -132,7 +132,7 @@ namespace Wikiled.Twitter.Persistency
 
         public async Task<UserItem> LoadUser(long id)
         {
-            string idText = $"User{id}";
+            var idText = $"User{id}";
             if (cache.TryGetValue(idText, out UserItem user))
             {
                 return user;
@@ -378,13 +378,13 @@ namespace Wikiled.Twitter.Persistency
 
         private void InvalidateUser(long id)
         {
-            string idText = $"User{id}";
+            var idText = $"User{id}";
             if (cache.TryGetValue(idText, out UserItem user))
             {
                 cache.Remove(idText);
                 foreach (var userMessage in user.Messages)
                 {
-                    string idMessage = $"Message{userMessage.Data.Id}";
+                    var idMessage = $"Message{userMessage.Data.Id}";
                     cache.Remove(idMessage);
                 }
             }

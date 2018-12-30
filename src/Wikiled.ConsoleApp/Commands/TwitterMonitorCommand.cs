@@ -36,15 +36,15 @@ namespace Wikiled.ConsoleApp.Commands
         {
             log.LogInformation("Starting twitter monitoring...");
 
-            string[] keywords = string.IsNullOrEmpty(config.Keywords) ? new string[] { } : config.Keywords.Split(',');
-            string[] follow = string.IsNullOrEmpty(config.People) ? new string[] { } : config.People.Split(',');
+            var keywords = string.IsNullOrEmpty(config.Keywords) ? new string[] { } : config.Keywords.Split(',');
+            var follow = string.IsNullOrEmpty(config.People) ? new string[] { } : config.People.Split(',');
             if (follow.Length == 0 &&
                 keywords.Length == 0)
             {
                 throw new NotSupportedException("Invalid selection");
             }
 
-            IDisposable subscribtion = monitoring.MessagesReceiving
+            var subscribtion = monitoring.MessagesReceiving
                 .ObserveOn(TaskPoolScheduler.Default)
                 .Subscribe(item => persistency.Save(item));
             await monitoring.Start(keywords, follow).ConfigureAwait(false);

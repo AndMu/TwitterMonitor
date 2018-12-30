@@ -23,14 +23,14 @@ namespace Wikiled.Twitter.Security
         {
             // Go to the URL so that Twitter authenticates the user and gives him a PIN code
             var token = applicationCredentials.Resolve();
-            IAuthenticationContext authenticationContext = AuthFlow.InitAuthentication(token);
+            var authenticationContext = AuthFlow.InitAuthentication(token);
 
             // This line is an example, on how to make the user go on the URL
             ExternaApp.OpenUrl(authenticationContext.AuthorizationURL);
             log.LogInformation("Reading console pin");
             Console.WriteLine("Enter your Pin:");
             // Ask the user to enter the pin code given by Twitter
-            string pinCode = Console.ReadLine();
+            var pinCode = Console.ReadLine();
             if (string.IsNullOrEmpty(pinCode))
             {
                 log.LogError("No pin code entered");

@@ -118,7 +118,7 @@ namespace Wikiled.ConsoleApp.Commands
 
         private IEnumerable<SentimentDiscovery> Enrichment()
         {
-            string[] keywords = string.IsNullOrEmpty(config.Topics) ? new string[] { } : config.Topics.Split(',');
+            var keywords = string.IsNullOrEmpty(config.Topics) ? new string[] { } : config.Topics.Split(',');
             if (config.Topics.Length == 0)
             {
                 throw new NotSupportedException("Invalid selection");

@@ -38,22 +38,22 @@ namespace Wikiled.ConsoleApp.Commands
         protected override Task Execute(CancellationToken token)
         {
             log.LogInformation("Starting twitter monitoring...");
-            string[] keywords = string.IsNullOrEmpty(config.Topics) ? new string[] { } : config.Topics.Split(',');
+            var keywords = string.IsNullOrEmpty(config.Topics) ? new string[] { } : config.Topics.Split(',');
             if (config.Topics.Length == 0)
             {
                 throw new NotSupportedException("Invalid selection");
             }
 
-            IMessageDiscovery discovery = discoveryFactory(new DiscoveryRequest(keywords));
-            Tweetinvi.Models.ITwitterCredentials cred = auth.Authenticate();
-            using (StreamWriter streamWriter = new StreamWriter(config.Out, true, new UTF8Encoding(false)))
-            using (CsvWriter csvDataTarget = new CsvWriter(streamWriter))
+            var discovery = discoveryFactory(new DiscoveryRequest(keywords));
+            var cred = auth.Authenticate();
+            using (var streamWriter = new StreamWriter(config.Out, true, new UTF8Encoding(false)))
+            using (var csvDataTarget = new CsvWriter(streamWriter))
             {
                 Auth.ExecuteOperationWithCredentials(
                     cred,
                     () =>
                     {
-                        foreach ((Tweetinvi.Models.ITweet Message, string Topic) item in discovery.Process())
+                        foreach (var item in discovery.Process())
                         {
                             csvDataTarget.WriteField(item.Message.Id);
                             csvDataTarget.WriteField(item.Message.Text);

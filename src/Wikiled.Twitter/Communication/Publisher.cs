@@ -47,19 +47,19 @@ namespace Wikiled.Twitter.Communication
 
         private void Publish(IPublishTweetParameters tweet)
         {
-            ITweet message = Tweet.PublishTweet(tweet);
+            var message = Tweet.PublishTweet(tweet);
             if (message != null)
             {
                 return;
             }
 
-            Tweetinvi.Core.Exceptions.ITwitterException exception = ExceptionHandler.GetLastException();
+            var exception = ExceptionHandler.GetLastException();
             if (exception == null)
             {
                 return;
             }
 
-            foreach (Tweetinvi.Core.Exceptions.ITwitterExceptionInfo exceptionTwitterExceptionInfo in exception.TwitterExceptionInfos)
+            foreach (var exceptionTwitterExceptionInfo in exception.TwitterExceptionInfos)
             {
                 log.LogError(exceptionTwitterExceptionInfo.Message);
             }

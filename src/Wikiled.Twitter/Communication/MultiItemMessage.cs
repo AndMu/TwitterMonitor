@@ -48,7 +48,7 @@ namespace Wikiled.Twitter.Communication
                 }
                 else
                 {
-                    builder.AppendFormat(" {0}\r\n", message);
+                    builder.AppendFormat("{0}\r\n", message);
                 }
             }
 

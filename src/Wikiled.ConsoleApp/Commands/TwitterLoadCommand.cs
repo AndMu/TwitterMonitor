@@ -49,7 +49,7 @@ namespace Wikiled.ConsoleApp.Commands
             try
             {
                 log.LogInformation("Starting twitter loading...");
-                string[] files = Directory.GetFiles(config.Out, "*.dat", SearchOption.AllDirectories);
+                var files = Directory.GetFiles(config.Out, "*.dat", SearchOption.AllDirectories);
                 await Process(files).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -68,13 +68,13 @@ namespace Wikiled.ConsoleApp.Commands
                     return;
                 }
 
-                int processed = Interlocked.Increment(ref total);
+                var processed = Interlocked.Increment(ref total);
                 if (processed % 1000000 == 0)
                 {
                     log.LogInformation("Processed: {0}", processed);
                 }
 
-                Tweetinvi.Models.ITweet tweet = Tweet.GenerateTweetFromDTO(tweetDto.Data);
+                var tweet = Tweet.GenerateTweetFromDTO(tweetDto.Data);
                 await persistency.Save(tweet).ConfigureAwait(false);
                 processor.Add(tweetDto);
             }
@@ -87,30 +87,30 @@ namespace Wikiled.ConsoleApp.Commands
 
         private async Task Process(string[] files)
         {
-            PerformanceMonitor monitor = new PerformanceMonitor(files.Length);
+            var monitor = new PerformanceMonitor(files.Length);
             using (Observable.Interval(TimeSpan.FromSeconds(30)).Subscribe(item => log.LogInformation(monitor.ToString())))
             {
-                BufferBlock<ProcessingChunk<string>> inputBlock = new BufferBlock<ProcessingChunk<string>>(new DataflowBlockOptions { BoundedCapacity = 1000000 });
-                TransformBlock<ProcessingChunk<string>, ProcessingChunk<TweetDTO>> deserializeBlock = new TransformBlock<ProcessingChunk<string>, ProcessingChunk<TweetDTO>>(
+                var inputBlock = new BufferBlock<ProcessingChunk<string>>(new DataflowBlockOptions { BoundedCapacity = 1000000 });
+                var deserializeBlock = new TransformBlock<ProcessingChunk<string>, ProcessingChunk<TweetDTO>>(
                     json => new ProcessingChunk<TweetDTO>(json.FileName, json.ChunkId, json.TotalChunks, jsonConvert.DeserializeObject<TweetDTO>(json.Data)),
                     new ExecutionDataflowBlockOptions
                     {
                         BoundedCapacity = 2,
                         MaxDegreeOfParallelism = Environment.ProcessorCount
                     });
-                ActionBlock<ProcessingChunk<TweetDTO>> outputBlock = new ActionBlock<ProcessingChunk<TweetDTO>>(
+                var outputBlock = new ActionBlock<ProcessingChunk<TweetDTO>>(
                     Deserialized,
                     new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = Environment.ProcessorCount });
 
                 inputBlock.LinkTo(deserializeBlock, new DataflowLinkOptions { PropagateCompletion = true });
                 deserializeBlock.LinkTo(outputBlock, new DataflowLinkOptions { PropagateCompletion = true });
 
-                foreach (string file in files)
+                foreach (var file in files)
                 {
                     try
                     {
-                        string[] data = fileLoader.Load(file);
-                        for (int i = 0; i < data.Length; i++)
+                        var data = fileLoader.Load(file);
+                        for (var i = 0; i < data.Length; i++)
                         {
                             await inputBlock.SendAsync(new ProcessingChunk<string>(file, i, data.Length, data[i])).ConfigureAwait(false);
                         }

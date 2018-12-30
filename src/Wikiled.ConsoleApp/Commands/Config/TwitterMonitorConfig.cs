@@ -21,7 +21,7 @@ namespace Wikiled.ConsoleApp.Commands.Config
         {
             builder.RegisterModule<TwitterModule>();
             builder.RegisterModule(new ConsoleAuthModule());
-            string path = string.IsNullOrEmpty(Out) ? "out" : Out;
+            var path = string.IsNullOrEmpty(Out) ? "out" : Out;
             builder.RegisterInstance(new TimingStreamConfig(path, TimeSpan.FromHours(1)));
             builder.RegisterType<TimingStreamSource>().As<IStreamSource>();
             if (Compress)
