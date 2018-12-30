@@ -7,10 +7,13 @@ namespace Wikiled.Twitter.Communication
 {
     public class MultiItemMessage : IFeedMessage
     {
-        public MultiItemMessage(string header, string[] messages, int maxLength = 140)
+        private readonly string breaks;
+
+        public MultiItemMessage(string header, string[] messages, string breaks = "\r\n", int maxLength = 140)
         {
             Header = header;
             Messages = messages;
+            this.breaks = breaks;
             MaxLength = maxLength;
         }
 
@@ -48,7 +51,7 @@ namespace Wikiled.Twitter.Communication
                 }
                 else
                 {
-                    builder.AppendFormat("{0}\r\n", message);
+                    builder.AppendFormat("{0}{1}", message, breaks);
                 }
             }
 

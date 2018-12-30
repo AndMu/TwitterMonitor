@@ -3,7 +3,6 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NLog;
 using Tweetinvi.Models;
 
 namespace Wikiled.Twitter.Security
