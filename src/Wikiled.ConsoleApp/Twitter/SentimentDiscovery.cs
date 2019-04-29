@@ -1,4 +1,4 @@
-﻿using Wikiled.Arff.Persistence;
+﻿using Wikiled.Arff.Logic;
 using Wikiled.Twitter.Discovery;
 
 namespace Wikiled.ConsoleApp.Twitter

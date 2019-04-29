@@ -21,12 +21,13 @@ namespace Wikiled.ConsoleApp.Commands
         private readonly TestPublishConfig config;
 
         public TestPublishCommand(ILogger<TestPublishCommand> log, TestPublishConfig config, IPublisher publisher)
+            : base(log)
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
             this.publisher = publisher ?? throw new ArgumentNullException(nameof(publisher));
             this.config = config ?? throw new ArgumentNullException(nameof(config));
         }
-        
+
         protected override Task Execute(CancellationToken token)
         {
             log.LogInformation("Publishing...");

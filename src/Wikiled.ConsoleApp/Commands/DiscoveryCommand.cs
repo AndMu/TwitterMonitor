@@ -28,6 +28,7 @@ namespace Wikiled.ConsoleApp.Commands
                                 IAuthentication authentication,
                                 Func<DiscoveryRequest, IMessageDiscovery> discoveryFactory,
                                 DiscoveryConfig config)
+            : base(log)
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
             this.discoveryFactory = discoveryFactory ?? throw new ArgumentNullException(nameof(discoveryFactory));

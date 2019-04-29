@@ -35,7 +35,11 @@ namespace Wikiled.ConsoleApp.Commands
 
         private readonly TwitterLoadConfig config;
 
-        public TwitterLoadCommand(ILogger<TwitterLoadCommand> log, TwitterLoadConfig config, IRedisPersistency persistency, IFileLoader fileLoader)
+        public TwitterLoadCommand(ILogger<TwitterLoadCommand> log,
+                                  TwitterLoadConfig config,
+                                  IRedisPersistency persistency,
+                                  IFileLoader fileLoader)
+            : base(log)
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
             this.config = config ?? throw new ArgumentNullException(nameof(config));

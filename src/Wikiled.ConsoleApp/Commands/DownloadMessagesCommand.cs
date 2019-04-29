@@ -23,15 +23,19 @@ namespace Wikiled.ConsoleApp.Commands
     /// </summary>
     public class DownloadMessagesCommand : Command
     {
-        private ILogger<DownloadMessagesCommand> log;
+        private readonly ILogger<DownloadMessagesCommand> log;
 
         private readonly IMessagesDownloader downloader;
 
         private readonly IAuthentication auth;
 
-        private DownloadMessagesConfig config;
+        private readonly DownloadMessagesConfig config;
 
-        public DownloadMessagesCommand(ILogger<DownloadMessagesCommand> log, IAuthentication auth, IMessagesDownloader downloader, DownloadMessagesConfig config)
+        public DownloadMessagesCommand(ILogger<DownloadMessagesCommand> log,
+                                       IAuthentication auth,
+                                       IMessagesDownloader downloader,
+                                       DownloadMessagesConfig config)
+            : base(log)
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
             this.downloader = downloader ?? throw new ArgumentNullException(nameof(downloader));

@@ -24,7 +24,11 @@ namespace Wikiled.ConsoleApp.Commands
 
         private readonly TwitterMonitorConfig config;
 
-        public TwitterMonitorCommand(ILogger<TwitterMonitorCommand> log, TwitterMonitorConfig config, IMonitoringStream monitoring,  IPersistency persistency)
+        public TwitterMonitorCommand(ILogger<TwitterMonitorCommand> log,
+                                     TwitterMonitorConfig config,
+                                     IMonitoringStream monitoring,
+                                     IPersistency persistency)
+            : base(log)
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
             this.monitoring = monitoring ?? throw new ArgumentNullException(nameof(monitoring));

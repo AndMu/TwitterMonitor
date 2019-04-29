@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using CsvHelper;
 using Microsoft.Extensions.Logging;
 using Tweetinvi;
-using Wikiled.Arff.Persistence;
+using Wikiled.Arff.Logic;
 using Wikiled.Common.Logging;
 using Wikiled.Console.Arguments;
 using Wikiled.ConsoleApp.Commands.Config;
@@ -37,9 +37,10 @@ namespace Wikiled.ConsoleApp.Commands
 
         private readonly Func<DiscoveryRequest, IMessageDiscovery> discoveryFactory;
 
-        private EnrichConfig config;
+        private readonly EnrichConfig config;
 
         public EnrichCommand(ILogger<EnrichCommand> log, IAuthentication auth, Func<DiscoveryRequest, IMessageDiscovery> discoveryFactory, EnrichConfig config)
+        : base(log)
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
             this.auth = auth ?? throw new ArgumentNullException(nameof(auth));
