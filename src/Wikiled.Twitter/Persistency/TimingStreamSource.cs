@@ -27,13 +27,13 @@ namespace Wikiled.Twitter.Persistency
             {
                 throw new ArgumentNullException(nameof(config));
             }
-
-            log.LogDebug(path);
+            
             path = config.Path;
             path.EnsureDirectoryExistence();
             fileCreation = config.FileCreation;
             this.log = log;
             path.EnsureDirectoryExistence();
+            log.LogInformation("Constructing: {0}", path);
         }
 
         private bool IsDisposed { get => Interlocked.CompareExchange(ref isDisposed, 0, 0) == 1; set => Interlocked.Exchange(ref isDisposed, value ? 1 : 0); }
