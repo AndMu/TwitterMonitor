@@ -69,5 +69,10 @@ namespace Wikiled.Twitter.Persistency
 
             return stream;
         }
+
+        public void Reset()
+        {
+            stream = null;
+        }
     }
 }

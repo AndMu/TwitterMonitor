@@ -6,5 +6,7 @@ namespace Wikiled.Twitter.Persistency
     public interface IStreamSource : IDisposable
     {
         Stream GetStream();
+
+        void Reset();
     }
 }
