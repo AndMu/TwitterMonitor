@@ -13,6 +13,7 @@
     <PackageReference Include="TweetinviAPI" Version="4.0.0" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.4.0" />
     <PackageReference Include="Wikiled.RedisInside" Version="3.2.101.11" />
+	<packagereference Include="Microsoft.NET.Test.Sdk" Version="16.1.0"></packagereference>
   </ItemGroup>
 
   <ItemGroup>
