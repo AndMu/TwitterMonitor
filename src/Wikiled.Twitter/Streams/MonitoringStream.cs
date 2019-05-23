@@ -162,7 +162,7 @@ namespace Wikiled.Twitter.Streams
             }
             catch (Exception ex)
             {
-                log.LogError(ex, "Object received");
+                log.LogError(ex, "Object processing error: " + jsonObjectEventArgs.Json);
             }
         }
 
@@ -179,7 +179,12 @@ namespace Wikiled.Twitter.Streams
 
         private void StreamOnStreamStopped(object sender, StreamExceptionEventArgs streamExceptionEventArgs)
         {
-            log.LogInformation("Stream Stopped...");
+            if (streamExceptionEventArgs.Exception != null)
+            {
+                log.LogError(streamExceptionEventArgs.Exception, "Stream error");
+            }
+
+            log.LogInformation("Stream Stopped ({0} {1})...", streamExceptionEventArgs.DisconnectMessage?.Reason, streamExceptionEventArgs.DisconnectMessage?.Code);
         }
 
         private void StreamOnStreamStarted(object sender, EventArgs eventArgs)

@@ -16,6 +16,7 @@ using Wikiled.Common.Logging;
 using Wikiled.Console.Arguments;
 using Wikiled.ConsoleApp.Commands.Config;
 using Wikiled.ConsoleApp.Twitter;
+using Wikiled.Text.Analysis.Emojis;
 using Wikiled.Text.Analysis.Twitter;
 using Wikiled.Twitter.Discovery;
 using Wikiled.Twitter.Security;
